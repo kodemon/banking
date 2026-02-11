@@ -1,0 +1,11 @@
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/bin/Debug/net10.0/Banking.Domain.deps.json
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/bin/Debug/net10.0/Banking.Domain.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/bin/Debug/net10.0/Banking.Domain.pdb
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/Banking.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/Banking.Domain.AssemblyInfoInputs.cache
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/Banking.Domain.AssemblyInfo.cs
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/Banking.Domain.csproj.CoreCompileInputs.cache
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/Banking.Domain.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/refint/Banking.Domain.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/Banking.Domain.pdb
+/home/kodemon/Projects/dotnet/api/src/Banking.Domain/obj/Debug/net10.0/ref/Banking.Domain.dll

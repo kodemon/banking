@@ -1,0 +1,15 @@
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/bin/Debug/net10.0/Banking.Application.deps.json
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/bin/Debug/net10.0/Banking.Application.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/bin/Debug/net10.0/Banking.Application.pdb
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/bin/Debug/net10.0/Banking.Domain.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/bin/Debug/net10.0/Banking.Domain.pdb
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking.Application.csproj.AssemblyReference.cache
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking.Application.AssemblyInfoInputs.cache
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking.Application.AssemblyInfo.cs
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking.Application.csproj.CoreCompileInputs.cache
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking..9061490F.Up2Date
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking.Application.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/refint/Banking.Application.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/Banking.Application.pdb
+/home/kodemon/Projects/dotnet/api/src/Banking.Application/obj/Debug/net10.0/ref/Banking.Application.dll
