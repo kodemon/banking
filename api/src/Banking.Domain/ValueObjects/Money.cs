@@ -1,6 +1,6 @@
 namespace Banking.Domain.ValueObjects;
 
-public readonly record struct Money(long Amount, string Currency)
+public readonly record struct Money(long Amount, Currency Currency)
 {
     public Money Add(Money other)
     {

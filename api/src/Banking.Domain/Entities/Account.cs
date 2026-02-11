@@ -36,5 +36,7 @@ public class Account
     public required AccountStatus Status { get; set; }
     public required Currency Currency { get; init; }
 
+    public ICollection<JournalEntry> JournalEntries { get; set; } = new List<JournalEntry>();
+
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }
