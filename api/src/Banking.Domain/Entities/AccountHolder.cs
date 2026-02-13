@@ -5,25 +5,25 @@ namespace Banking.Domain.Entities;
 /*
     Account Holder
 
-    Repersents an ownership entity of an account. In our project every AccountHolder assigned to an
-    account has full ownership access to it. In a more productionr ready banking system we would want
+    Represents an ownership entity of an account. In our project every AccountHolder assigned to an
+    account has full ownership access to it. In a more production ready banking system we would want
     a connecting middle layer describing the AccountHolder level of ownership of an account. For this
     project we want to keep things simple as we aim to serve educational level solutions rather than
     a full fledged banking system.
 
-    Instead of creaeting one large AccountHolder we define individual details in separate classes
-    and tables. This allows for multiple meta data entries of the same type, and also cleanly
+    Instead of creating one large AccountHolder entity we define individual meta details in separate 
+    classes and tables. This allows for multiple meta data entries of the same type, and also cleanly
     separates the ability to form different outputs based on separated concepts.
 
-    # Account Type
+        Account Holder Type
 
-    Account type is determined by what identities is attached to the holder. If a holder has a single
-    IndividualIdentity the account type would be personal, if only BusinessIdentity is present we
-    would define it as a business account, if it has multiple IndividualIdentity entries we would
-    consider it a joint account, and if lastly if it has a mix of Individual and Bussines identities
-    we could consider it a shared account. By not explicitly creating account types we produce more
-    flexibility for potential future identity types which we can re-define through new definitions
-    based on mixture rather than explicit definitions.
+            Account type is determined by what identities is attached to the holder. If a holder has a single
+            IndividualIdentity the account type would be personal, if only BusinessIdentity is present we
+            would define it as a business account, if it has multiple IndividualIdentity entries we would
+            consider it a joint account, and if lastly if it has a mix of Individual and Bussines identities
+            we could consider it a shared account. By not explicitly creating account types we produce more
+            flexibility for potential future identity types which we can re-define through new definitions
+            based on mixture rather than explicit definitions.
  */
 
 public class AccountHolder
@@ -93,7 +93,6 @@ internal class AccountHolderBusinessIdentity
 
     public required string Name { get; set; }
     public required string OrganizationNumber { get; init; }
-
 }
 
 internal class AccountHolderAddress
@@ -106,7 +105,7 @@ internal class AccountHolderAddress
     public required string PostalCode { get; set; }
     public required string Country { get; set; }
 
-    public string? Region { get; set; }  // State/Province, optional
+    public string? Region { get; set; }
 
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }

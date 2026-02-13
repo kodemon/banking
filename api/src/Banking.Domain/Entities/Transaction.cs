@@ -28,5 +28,4 @@ public class Transaction
     public ICollection<JournalEntry> JournalEntries { get; set; } = new List<JournalEntry>();
 
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-
 }

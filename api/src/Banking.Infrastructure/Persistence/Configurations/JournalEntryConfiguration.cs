@@ -10,11 +10,9 @@ public class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry>
     {
         builder.HasKey(je => je.Id);
 
-        // Properties
         SetTypeProperty(builder);
         SetCreatedAtProperty(builder);
 
-        // Indexes
         SetIndexes(builder);
     }
 

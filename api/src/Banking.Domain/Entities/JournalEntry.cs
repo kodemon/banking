@@ -6,8 +6,8 @@ namespace Banking.Domain.Entities;
     Journal Entry
 
     Implements double-entry bookkeeping of transactions for an account. Every transaction should result
-    in two entries, one credit, and one debit. This tracks who is sending and receiving funds
-    for a given transaction.
+    in two entries, one credit and one debit. This tracks who is sending and receiving funds for a given
+    transaction.
 
     For example:
 
@@ -15,12 +15,14 @@ namespace Banking.Domain.Entities;
         The following journal entries would be logged.
 
         JournalEntry
+
             Id: guid
             AccountId: Y
             TransactionId: A
             Type: Credit
 
         JournalEntry
+
             Id: guid
             AccountId: Z
             TransactionId: A
