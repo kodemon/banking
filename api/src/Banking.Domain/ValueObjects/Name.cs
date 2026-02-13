@@ -1,7 +1,9 @@
 namespace Banking.Domain.ValueObjects;
 
-public readonly record struct Name(string Family, string Given)
+public record Name(string Family, string Given)
 {
+    private Name() : this(string.Empty, string.Empty) { }
+
     public string Full()
     {
         return $"{Given} {Family}";

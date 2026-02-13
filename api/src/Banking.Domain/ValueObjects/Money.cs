@@ -1,7 +1,9 @@
 namespace Banking.Domain.ValueObjects;
 
-public readonly record struct Money(long Amount, Currency Currency)
+public record Money(long Amount, Currency Currency)
 {
+    private Money() : this(0, Currency.NOK) { }
+
     public Money Add(Money other)
     {
         ValidateCurrency(other);
