@@ -17,27 +17,41 @@ namespace Banking.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.2")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AccountAccountHolder", b =>
+            modelBuilder.Entity("Banking.Domain.Access.PrincipalAttribute", b =>
                 {
-                    b.Property<Guid>("AccountsId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("HoldersId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PrincipalId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("AccountsId", "HoldersId");
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("HoldersId");
+                    b.HasKey("Id");
 
-                    b.ToTable("AccountHolders_Accounts", (string)null);
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("PrincipalId");
+
+                    b.ToTable("PrincipalAttributes");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.Account", b =>
+            modelBuilder.Entity("Banking.Domain.Accounts.Account", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,7 +71,7 @@ namespace Banking.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -65,10 +79,70 @@ namespace Banking.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Status");
 
+                    b.HasIndex("Type");
+
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolder", b =>
+            modelBuilder.Entity("Banking.Domain.Accounts.BusinessAccountHolder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("HolderType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("BusinessId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.ToTable("BusinessAccountHolders");
+                });
+
+            modelBuilder.Entity("Banking.Domain.Accounts.PersonalAccountHolder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("HolderType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PersonalAccountHolders");
+                });
+
+            modelBuilder.Entity("Banking.Domain.Identity.Business", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -77,20 +151,28 @@ namespace Banking.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrganizationNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
 
-                    b.ToTable("Identities");
+                    b.ToTable("Businesses");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderAddress", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.BusinessAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AccountHolderId")
+                    b.Property<Guid>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("City")
@@ -122,47 +204,15 @@ namespace Banking.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountHolderId");
+                    b.HasIndex("BusinessId");
 
-                    b.ToTable("AccountHolderAddress");
+                    b.ToTable("BusinessAddresses");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderBusinessIdentity", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.BusinessEmail", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AccountHolderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("OrganizationNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountHolderId");
-
-                    b.HasIndex("OrganizationNumber")
-                        .IsUnique();
-
-                    b.ToTable("AccountHolderBusinessIdentity");
-                });
-
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderEmail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AccountHolderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Address")
@@ -170,41 +220,25 @@ namespace Banking.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasIndex("AccountHolderId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Address");
 
-                    b.ToTable("AccountHolderEmail");
+                    b.HasIndex("BusinessId");
+
+                    b.ToTable("BusinessEmails");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderIndividualIdentity", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.BusinessPhone", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AccountHolderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountHolderId");
-
-                    b.ToTable("AccountHolderIndividualIdentity");
-                });
-
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderPhone", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AccountHolderId")
+                    b.Property<Guid>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CountryCode")
@@ -219,12 +253,100 @@ namespace Banking.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountHolderId");
+                    b.HasIndex("BusinessId");
 
-                    b.ToTable("AccountHolderPhone");
+                    b.ToTable("BusinessPhones");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.JournalEntry", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Banking.Domain.Identity.UserAddress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Region")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAddresses");
+                });
+
+            modelBuilder.Entity("Banking.Domain.Identity.UserEmail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Address");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "Address")
+                        .IsUnique();
+
+                    b.ToTable("UserEmails");
+                });
+
+            modelBuilder.Entity("Banking.Domain.Transactions.JournalEntry", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -256,7 +378,7 @@ namespace Banking.Infrastructure.Persistence.Migrations
                     b.ToTable("JournalEntries");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("Banking.Domain.Transactions.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -304,59 +426,76 @@ namespace Banking.Infrastructure.Persistence.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("AccountAccountHolder", b =>
+            modelBuilder.Entity("Banking.Domain.Accounts.BusinessAccountHolder", b =>
                 {
-                    b.HasOne("Banking.Domain.Entities.Account", null)
-                        .WithMany()
-                        .HasForeignKey("AccountsId")
+                    b.HasOne("Banking.Domain.Accounts.Account", "Account")
+                        .WithMany("BusinessHolders")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Banking.Domain.Entities.AccountHolder", null)
-                        .WithMany()
-                        .HasForeignKey("HoldersId")
+                    b.HasOne("Banking.Domain.Identity.Business", "Business")
+                        .WithMany("AccountHoldings")
+                        .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Business");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderAddress", b =>
+            modelBuilder.Entity("Banking.Domain.Accounts.PersonalAccountHolder", b =>
                 {
-                    b.HasOne("Banking.Domain.Entities.AccountHolder", null)
+                    b.HasOne("Banking.Domain.Accounts.Account", "Account")
+                        .WithMany("PersonalHolders")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Banking.Domain.Identity.User", "User")
+                        .WithMany("AccountHoldings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Banking.Domain.Identity.BusinessAddress", b =>
+                {
+                    b.HasOne("Banking.Domain.Identity.Business", null)
                         .WithMany("Addresses")
-                        .HasForeignKey("AccountHolderId")
+                        .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderBusinessIdentity", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.BusinessEmail", b =>
                 {
-                    b.HasOne("Banking.Domain.Entities.AccountHolder", null)
-                        .WithMany("BusinessIdentities")
-                        .HasForeignKey("AccountHolderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderEmail", b =>
-                {
-                    b.HasOne("Banking.Domain.Entities.AccountHolder", null)
+                    b.HasOne("Banking.Domain.Identity.Business", null)
                         .WithMany("Emails")
-                        .HasForeignKey("AccountHolderId")
+                        .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderIndividualIdentity", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.BusinessPhone", b =>
                 {
-                    b.HasOne("Banking.Domain.Entities.AccountHolder", null)
-                        .WithMany("IndividualIdentities")
-                        .HasForeignKey("AccountHolderId")
+                    b.HasOne("Banking.Domain.Identity.Business", null)
+                        .WithMany("Phones")
+                        .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("Banking.Domain.Identity.User", b =>
+                {
                     b.OwnsOne("Banking.Domain.ValueObjects.Name", "Name", b1 =>
                         {
-                            b1.Property<Guid>("AccountHolderIndividualIdentityId")
+                            b1.Property<Guid>("UserId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Family")
@@ -369,36 +508,45 @@ namespace Banking.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)");
 
-                            b1.HasKey("AccountHolderIndividualIdentityId");
+                            b1.HasKey("UserId");
 
-                            b1.ToTable("AccountHolderIndividualIdentity");
+                            b1.ToTable("Users");
 
                             b1.WithOwner()
-                                .HasForeignKey("AccountHolderIndividualIdentityId");
+                                .HasForeignKey("UserId");
                         });
 
                     b.Navigation("Name")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolderPhone", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.UserAddress", b =>
                 {
-                    b.HasOne("Banking.Domain.Entities.AccountHolder", null)
-                        .WithMany("Phones")
-                        .HasForeignKey("AccountHolderId")
+                    b.HasOne("Banking.Domain.Identity.User", null)
+                        .WithMany("Addresses")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.JournalEntry", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.UserEmail", b =>
                 {
-                    b.HasOne("Banking.Domain.Entities.Account", "Account")
+                    b.HasOne("Banking.Domain.Identity.User", null)
+                        .WithMany("Emails")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Banking.Domain.Transactions.JournalEntry", b =>
+                {
+                    b.HasOne("Banking.Domain.Accounts.Account", "Account")
                         .WithMany("JournalEntries")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Banking.Domain.Entities.Transaction", "Transaction")
+                    b.HasOne("Banking.Domain.Transactions.Transaction", "Transaction")
                         .WithMany("JournalEntries")
                         .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -409,25 +557,36 @@ namespace Banking.Infrastructure.Persistence.Migrations
                     b.Navigation("Transaction");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.Account", b =>
+            modelBuilder.Entity("Banking.Domain.Accounts.Account", b =>
                 {
+                    b.Navigation("BusinessHolders");
+
                     b.Navigation("JournalEntries");
+
+                    b.Navigation("PersonalHolders");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.AccountHolder", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.Business", b =>
                 {
+                    b.Navigation("AccountHoldings");
+
                     b.Navigation("Addresses");
 
-                    b.Navigation("BusinessIdentities");
-
                     b.Navigation("Emails");
-
-                    b.Navigation("IndividualIdentities");
 
                     b.Navigation("Phones");
                 });
 
-            modelBuilder.Entity("Banking.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("Banking.Domain.Identity.User", b =>
+                {
+                    b.Navigation("AccountHoldings");
+
+                    b.Navigation("Addresses");
+
+                    b.Navigation("Emails");
+                });
+
+            modelBuilder.Entity("Banking.Domain.Transactions.Transaction", b =>
                 {
                     b.Navigation("JournalEntries");
                 });
