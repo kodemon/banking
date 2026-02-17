@@ -40,6 +40,9 @@
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/Microsoft.VisualStudio.SolutionPersistence.dll
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/Mono.TextTemplating.dll
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/Newtonsoft.Json.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.Swagger.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerGen.dll
+/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/System.ClientModel.dll
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/System.CodeDom.dll
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/System.Composition.AttributedModel.dll
@@ -193,8 +196,3 @@
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Banking.Api.deps.json
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Banking.Api.runtimeconfig.json
 /home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Banking.Api.staticwebassets.endpoints.json
-/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json
-/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json
-/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Banking.Api.deps.json
-/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Banking.Api.runtimeconfig.json
-/home/kodemon/Projects/dotnet/api/src/Banking.Api/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Banking.Api.staticwebassets.endpoints.json

@@ -10,19 +10,27 @@ public class UserEmailConfiguration : IEntityTypeConfiguration<UserEmail>
     {
         builder.HasKey(je => je.Id);
 
-        SetAddressProperty(builder);
+        SetEmailProperty(builder);
+        SetCreatedAtProperty(builder);
 
         SetIndexes(builder);
     }
 
     // ### Properties
 
-    private void SetAddressProperty(EntityTypeBuilder<UserEmail> builder)
+    private void SetEmailProperty(EntityTypeBuilder<UserEmail> builder)
     {
-        builder
-            .Property(e => e.Address)
-            .HasMaxLength(255)
-            .IsRequired();
+        builder.OwnsOne(e => e.Email, email =>
+        {
+            email.Property(e => e.Address).HasMaxLength(254).IsRequired();
+            email.Property(e => e.Type).IsRequired();
+            email.HasIndex(e => e.Address);
+        });
+    }
+
+    private void SetCreatedAtProperty(EntityTypeBuilder<UserEmail> builder)
+    {
+        builder.Property(e => e.CreatedAt).IsRequired();
     }
 
     // ### Indexes
@@ -30,7 +38,5 @@ public class UserEmailConfiguration : IEntityTypeConfiguration<UserEmail>
     private void SetIndexes(EntityTypeBuilder<UserEmail> builder)
     {
         builder.HasIndex(e => e.UserId);
-        builder.HasIndex(e => new { e.UserId, e.Address }).IsUnique();
-        builder.HasIndex(e => e.Address);
     }
 }

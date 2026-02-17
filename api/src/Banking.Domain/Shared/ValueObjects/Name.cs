@@ -1,11 +1,33 @@
+using Banking.Domain.Exceptions;
+
 namespace Banking.Domain.ValueObjects;
 
-public record Name(string Family, string Given)
+public record Name
 {
-    private Name() : this(string.Empty, string.Empty) { }
+    public string Family { get; }
+    public string Given { get; }
 
-    public string Full()
+    public Name(string family, string given)
     {
-        return $"{Given} {Family}";
+        Validate(family, given);
+        Family = family;
+        Given = given;
+    }
+
+    public string Full => $"{Given} {Family}";
+
+    public Name WithGiven(string given) => new(Family, given);
+    public Name WithFamily(string family) => new(family, Given);
+
+    private static void Validate(string family, string given)
+    {
+        if (string.IsNullOrWhiteSpace(given))
+        {
+            throw new DomainValidationException("Given name cannot be empty");
+        }
+        if (string.IsNullOrWhiteSpace(family))
+        {
+            throw new DomainValidationException("Family name cannot be empty");
+        }
     }
 }

@@ -10,19 +10,27 @@ public class BusinessEmailConfiguration : IEntityTypeConfiguration<BusinessEmail
     {
         builder.HasKey(je => je.Id);
 
-        SetAddressProperty(builder);
+        SetEmailProperty(builder);
+        SetCreatedAtProperty(builder);
 
         SetIndexes(builder);
     }
 
     // ### Properties
 
-    private void SetAddressProperty(EntityTypeBuilder<BusinessEmail> builder)
+    private void SetEmailProperty(EntityTypeBuilder<BusinessEmail> builder)
     {
-        builder
-            .Property(e => e.Address)
-            .HasMaxLength(255)
-            .IsRequired();
+        builder.OwnsOne(e => e.Email, email =>
+        {
+            email.Property(e => e.Address).HasMaxLength(254).IsRequired();
+            email.Property(e => e.Type).IsRequired();
+            email.HasIndex(e => e.Address);
+        });
+    }
+
+    private void SetCreatedAtProperty(EntityTypeBuilder<BusinessEmail> builder)
+    {
+        builder.Property(e => e.CreatedAt).IsRequired();
     }
 
     // ### Indexes
@@ -30,6 +38,5 @@ public class BusinessEmailConfiguration : IEntityTypeConfiguration<BusinessEmail
     private void SetIndexes(EntityTypeBuilder<BusinessEmail> builder)
     {
         builder.HasIndex(e => e.BusinessId);
-        builder.HasIndex(e => e.Address);
     }
 }

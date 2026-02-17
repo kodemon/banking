@@ -121,11 +121,11 @@ namespace Banking.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BusinessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Street = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Region = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Address_Street = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Address_City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Address_PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Address_Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Address_Region = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -145,7 +145,9 @@ namespace Banking.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BusinessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    Email_Address = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: false),
+                    Email_Type = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -238,11 +240,11 @@ namespace Banking.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Street = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Region = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Address_Street = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Address_City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Address_PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Address_Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Address_Region = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -262,7 +264,9 @@ namespace Banking.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    Email_Address = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: false),
+                    Email_Type = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -311,14 +315,14 @@ namespace Banking.Infrastructure.Persistence.Migrations
                 column: "BusinessId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BusinessEmails_Address",
-                table: "BusinessEmails",
-                column: "Address");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_BusinessEmails_BusinessId",
                 table: "BusinessEmails",
                 column: "BusinessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusinessEmails_Email_Address",
+                table: "BusinessEmails",
+                column: "Email_Address");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Businesses_CreatedAt",
@@ -401,20 +405,14 @@ namespace Banking.Infrastructure.Persistence.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserEmails_Address",
+                name: "IX_UserEmails_Email_Address",
                 table: "UserEmails",
-                column: "Address");
+                column: "Email_Address");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserEmails_UserId",
                 table: "UserEmails",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserEmails_UserId_Address",
-                table: "UserEmails",
-                columns: new[] { "UserId", "Address" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_CreatedAt",

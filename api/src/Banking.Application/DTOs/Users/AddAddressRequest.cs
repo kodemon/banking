@@ -1,4 +1,4 @@
-namespace Banking.Application.DTOs.Identity;
+namespace Banking.Application.DTOs.Users;
 
 public record AddAddressRequest
 {

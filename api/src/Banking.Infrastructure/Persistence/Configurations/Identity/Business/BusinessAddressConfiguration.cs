@@ -10,11 +10,7 @@ public class BusinessAddressConfiguration : IEntityTypeConfiguration<BusinessAdd
     {
         builder.HasKey(je => je.Id);
 
-        SetStreetProperty(builder);
-        SetCityProperty(builder);
-        SetPostalCodeProperty(builder);
-        SetCountryProperty(builder);
-        SetRegionProperty(builder);
+        SetAddressProperty(builder);
         SetCreatedAtProperty(builder);
 
         SetIndexes(builder);
@@ -23,43 +19,16 @@ public class BusinessAddressConfiguration : IEntityTypeConfiguration<BusinessAdd
 
     // ### Properties
 
-    private void SetStreetProperty(EntityTypeBuilder<BusinessAddress> builder)
+    private void SetAddressProperty(EntityTypeBuilder<BusinessAddress> builder)
     {
-        builder
-            .Property(a => a.Street)
-            .HasMaxLength(200)
-            .IsRequired();
-    }
-
-    private void SetCityProperty(EntityTypeBuilder<BusinessAddress> builder)
-    {
-        builder
-            .Property(a => a.City)
-            .HasMaxLength(100)
-            .IsRequired();
-    }
-
-    private void SetPostalCodeProperty(EntityTypeBuilder<BusinessAddress> builder)
-    {
-        builder
-            .Property(a => a.PostalCode)
-            .HasMaxLength(20)
-            .IsRequired();
-    }
-
-    private void SetCountryProperty(EntityTypeBuilder<BusinessAddress> builder)
-    {
-        builder
-            .Property(a => a.Country)
-            .HasMaxLength(100)
-            .IsRequired();
-    }
-
-    private void SetRegionProperty(EntityTypeBuilder<BusinessAddress> builder)
-    {
-        builder
-            .Property(a => a.Region)
-            .HasMaxLength(100);
+        builder.OwnsOne(a => a.Address, address =>
+        {
+            address.Property(a => a.Street).HasMaxLength(200).IsRequired();
+            address.Property(a => a.City).HasMaxLength(100).IsRequired();
+            address.Property(a => a.PostalCode).HasMaxLength(20).IsRequired();
+            address.Property(a => a.Country).HasMaxLength(100).IsRequired();
+            address.Property(a => a.Region).HasMaxLength(100);
+        });
     }
 
     private void SetCreatedAtProperty(EntityTypeBuilder<BusinessAddress> builder)

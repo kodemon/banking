@@ -1,3 +1,11 @@
+# Banking
+
+## Linux Commands
+
+```sh
+$ find . -name "*.cs" -type f -exec echo "=== {} ===" \; -exec cat {} \; -exec echo "" \;
+```
+
 # Banking.Api
 
 ## Run

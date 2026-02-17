@@ -10,4 +10,8 @@
     <InternalsVisibleTo Include="Banking.Infrastructure" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions/" />
+  </ItemGroup>
+
 </Project>

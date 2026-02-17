@@ -1,6 +1,6 @@
 using Banking.Domain.ValueObjects;
 
-namespace Banking.Application.DTOs.Identity;
+namespace Banking.Application.DTOs.Users;
 
 public record UserResponse
 {
@@ -29,4 +29,5 @@ public record EmailResponse
 {
     public required Guid Id { get; init; }
     public required string Address { get; init; }
+    public required EmailType Type { get; init; }
 }
