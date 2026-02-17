@@ -1,7 +1,8 @@
+using Banking.Domain.ValueObjects;
+
 namespace Banking.Application.DTOs.Users;
 
 public record UpdateUserRequest
 {
-    public string? GivenName { get; init; }
-    public string? FamilyName { get; init; }
+    public Name? Name { get; init; }
 }

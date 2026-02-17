@@ -7,6 +7,11 @@ namespace Banking.Infrastructure.Repositories;
 
 public class UserRepository(BankingDbContext context) : IUserRepository
 {
+    public async Task AddAsync(User user)
+    {
+        await context.Users.AddAsync(user);
+    }
+
     public async Task<User?> GetByIdAsync(Guid id)
     {
         return await context.Users
@@ -27,11 +32,6 @@ public class UserRepository(BankingDbContext context) : IUserRepository
     {
         return await context.Users
             .AnyAsync(u => u.Emails.Any(e => e.Email.Address == emailAddress));
-    }
-
-    public async Task AddAsync(User user)
-    {
-        await context.Users.AddAsync(user);
     }
 
     public Task DeleteAsync(User user)

@@ -18,7 +18,9 @@ public class UserService(IUserRepository userRepository)
     public async Task<UserResponse> CreateUserAsync(CreateUserRequest request)
     {
         if (await userRepository.ExistsByEmailAsync(request.Email))
+        {
             throw new AggregateConflictException($"Email '{request.Email}' is already registered");
+        }
 
         var user = new User(
             request.Name,
@@ -35,9 +37,7 @@ public class UserService(IUserRepository userRepository)
 
     public async Task<UserResponse> GetUserByIdAsync(Guid userId)
     {
-        var user = await userRepository.GetByIdAsync(userId)
-            ?? throw new AggregateNotFoundException($"User {userId} not found");
-
+        var user = await GetUser(userId);
         return user.ToResponse();
     }
 
@@ -49,26 +49,18 @@ public class UserService(IUserRepository userRepository)
 
     public async Task<UserResponse> UpdateUserAsync(Guid userId, UpdateUserRequest request)
     {
-        var user = await userRepository.GetByIdAsync(userId)
-            ?? throw new AggregateNotFoundException($"User {userId} not found");
-
-        if (request.GivenName is not null && request.FamilyName is not null)
-            user.SetName(request.GivenName, request.FamilyName);
-        else if (request.GivenName is not null)
-            user.SetGivenName(request.GivenName);
-        else if (request.FamilyName is not null)
-            user.SetFamilyName(request.FamilyName);
-
+        var user = await GetUser(userId);
+        if (request.Name is not null)
+        {
+            user.SetName(request.Name.Family, request.Name.Given);
+        }
         await userRepository.SaveChangesAsync();
-
         return user.ToResponse();
     }
 
     public async Task DeleteUserAsync(Guid userId)
     {
-        var user = await userRepository.GetByIdAsync(userId)
-            ?? throw new AggregateNotFoundException($"User {userId} not found");
-
+        var user = await GetUser(userId);
         await userRepository.DeleteAsync(user);
         await userRepository.SaveChangesAsync();
     }
@@ -81,23 +73,16 @@ public class UserService(IUserRepository userRepository)
 
     public async Task<EmailResponse> AddEmailAsync(Guid userId, AddEmailRequest request)
     {
-        var user = await userRepository.GetByIdAsync(userId)
-            ?? throw new AggregateNotFoundException($"User {userId} not found");
-
+        var user = await GetUser(userId);
         var email = user.AddEmail(new Email(request.Address, request.Type));
-
         await userRepository.SaveChangesAsync();
-
         return email.ToResponse();
     }
 
     public async Task RemoveEmailAsync(Guid userId, Guid emailId)
     {
-        var user = await userRepository.GetByIdAsync(userId)
-            ?? throw new AggregateNotFoundException($"User {userId} not found");
-
+        var user = await GetUser(userId);
         user.RemoveEmail(emailId);
-
         await userRepository.SaveChangesAsync();
     }
 
@@ -109,9 +94,7 @@ public class UserService(IUserRepository userRepository)
 
     public async Task<AddressResponse> AddAddressAsync(Guid userId, AddAddressRequest request)
     {
-        var user = await userRepository.GetByIdAsync(userId)
-            ?? throw new AggregateNotFoundException($"User {userId} not found");
-
+        var user = await GetUser(userId);
         var address = user.AddAddress(new Address(
             request.Street,
             request.City,
@@ -119,19 +102,30 @@ public class UserService(IUserRepository userRepository)
             request.Country,
             request.Region
         ));
-
         await userRepository.SaveChangesAsync();
-
         return address.ToResponse();
     }
 
     public async Task RemoveAddressAsync(Guid userId, Guid addressId)
     {
-        var user = await userRepository.GetByIdAsync(userId)
-            ?? throw new AggregateNotFoundException($"User {userId} not found");
-
+        var user = await GetUser(userId);
         user.RemoveAddress(addressId);
-
         await userRepository.SaveChangesAsync();
+    }
+
+    /*
+     |--------------------------------------------------------------------------------
+     | Helpers
+     |--------------------------------------------------------------------------------
+     */
+
+    private async Task<User> GetUser(Guid userId)
+    {
+        var user = await userRepository.GetByIdAsync(userId);
+        if (user is null)
+        {
+            throw new AggregateNotFoundException($"User {userId} not found");
+        }
+        return user;
     }
 }
