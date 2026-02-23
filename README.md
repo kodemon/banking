@@ -13,7 +13,7 @@ find . -name "*.cs" -type f -exec echo "=== {} ===" \; -exec cat {} \; -exec ech
 To start the API run:
 
 ```sh
-dotnet run --project api/src/Banking.Api
+dotnet run --project api/Banking.Api
 ```
 
 # Banking.Infrastructure
