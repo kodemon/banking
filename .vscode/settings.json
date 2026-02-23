@@ -1,0 +1,15 @@
+{
+    "editor.codeLens": false,
+    "editor.formatOnSave": true,
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp",
+        "editor.codeActionsOnSave": [
+            "source.organizeImports",
+            "source.fixAll"
+        ],
+        "editor.formatOnSave": true
+    },
+    "dotnet.server.useOmnisharp": true,
+    "entityframework.project": "api/src/Banking.Infrastructure",
+    "entityframework.startupProject": "api/src/Banking.Api"
+}
