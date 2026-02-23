@@ -16,8 +16,7 @@ public record TransactionResponse
 public record JournalEntryResponse
 {
     public required Guid Id { get; init; }
-    public required Guid AccountId { get; init; }
+    public required Guid ParticipantId { get; init; }
     public required string Type { get; init; }
-    public required long Amount { get; init; }
     public required DateTime CreatedAt { get; init; }
 }

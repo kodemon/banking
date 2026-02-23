@@ -7,8 +7,7 @@ internal class AccountsDbContext : DbContext
     public AccountsDbContext(DbContextOptions<AccountsDbContext> options) : base(options) { }
 
     internal DbSet<Account> Accounts => Set<Account>();
-    internal DbSet<PersonalAccountHolder> PersonalAccountHolders => Set<PersonalAccountHolder>();
-    internal DbSet<BusinessAccountHolder> BusinessAccountHolders => Set<BusinessAccountHolder>();
+    internal DbSet<AccountHolder> PersonalAccountHolders => Set<AccountHolder>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

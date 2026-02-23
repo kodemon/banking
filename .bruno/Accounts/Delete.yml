@@ -1,0 +1,19 @@
+info:
+  name: Delete
+  type: http
+  seq: 3
+
+http:
+  method: DELETE
+  url: http://localhost:5283/api/accounts/:id
+  params:
+    - name: id
+      value: 28a5cc81-8d29-4b20-ae22-cd4652a3d670
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

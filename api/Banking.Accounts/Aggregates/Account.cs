@@ -17,11 +17,8 @@ internal class Account
     public AccountStatus Status { get; set; }
     public Currency Currency { get; init; } = null!;
 
-    private readonly List<PersonalAccountHolder> _personalHolders = new();
-    public IReadOnlyCollection<PersonalAccountHolder> PersonalHolders => _personalHolders.AsReadOnly();
-
-    private readonly List<BusinessAccountHolder> _businessHolders = new();
-    public IReadOnlyCollection<BusinessAccountHolder> BusinessHolders => _businessHolders.AsReadOnly();
+    private readonly List<AccountHolder> _accountHolders = new();
+    public IReadOnlyCollection<AccountHolder> AccountHolders => _accountHolders.AsReadOnly();
 
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
@@ -68,74 +65,42 @@ internal class Account
      |--------------------------------------------------------------------------------
      */
 
-    public PersonalAccountHolder AddPersonalHolder(Guid userId, PersonalHolderType holderType)
+    public AccountHolder AddHolder(Guid holderId, AccountHolderType holderType)
     {
-        if (_personalHolders.Any(h => h.UserId == userId))
-            throw new AggregateConflictException($"User {userId} is already a holder on account {Id}");
+        if (_accountHolders.Any(h => h.HolderId == holderId))
+            throw new AggregateConflictException($"Holder {holderId} is already on account {Id}");
 
-        var holder = new PersonalAccountHolder
+        var holder = new AccountHolder
         {
             Id = Guid.NewGuid(),
             AccountId = Id,
-            UserId = userId,
+            HolderId = holderId,
             HolderType = holderType
         };
-        _personalHolders.Add(holder);
+        _accountHolders.Add(holder);
         return holder;
     }
 
-    public void RemovePersonalHolder(Guid holderId)
+    public void RemoveHolder(Guid holderId)
     {
-        var holder = _personalHolders.FirstOrDefault(h => h.Id == holderId)
-            ?? throw new AggregateNotFoundException($"Personal holder {holderId} not found on account {Id}");
-        _personalHolders.Remove(holder);
-    }
-
-    public BusinessAccountHolder AddBusinessHolder(Guid businessId, BusinessHolderType holderType)
-    {
-        if (_businessHolders.Any(h => h.BusinessId == businessId))
-            throw new AggregateConflictException($"Business {businessId} is already a holder on account {Id}");
-
-        var holder = new BusinessAccountHolder
-        {
-            Id = Guid.NewGuid(),
-            AccountId = Id,
-            BusinessId = businessId,
-            HolderType = holderType
-        };
-        _businessHolders.Add(holder);
-        return holder;
-    }
-
-    public void RemoveBusinessHolder(Guid holderId)
-    {
-        var holder = _businessHolders.FirstOrDefault(h => h.Id == holderId)
-            ?? throw new AggregateNotFoundException($"Business holder {holderId} not found on account {Id}");
-        _businessHolders.Remove(holder);
+        var holder = _accountHolders.FirstOrDefault(h => h.Id == holderId)
+            ?? throw new AggregateNotFoundException($"Holder {holderId} not found on account {Id}");
+        _accountHolders.Remove(holder);
     }
 }
 
 /*
  |--------------------------------------------------------------------------------
- | Account Holders
+ | Account Holder
  |--------------------------------------------------------------------------------
  */
 
-internal class PersonalAccountHolder
+internal class AccountHolder
 {
     public Guid Id { get; init; }
     public Guid AccountId { get; init; }
-    public Guid UserId { get; init; }
-    public PersonalHolderType HolderType { get; set; }
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-}
-
-internal class BusinessAccountHolder
-{
-    public Guid Id { get; init; }
-    public Guid AccountId { get; init; }
-    public Guid BusinessId { get; init; }
-    public BusinessHolderType HolderType { get; set; }
+    public Guid HolderId { get; init; }  // external reference — could be a User, Business, anything
+    public AccountHolderType HolderType { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }
 
@@ -145,7 +110,31 @@ internal class BusinessAccountHolder
  |--------------------------------------------------------------------------------
  */
 
-internal enum AccountType { Checking, Savings, Loan, Investment }
-internal enum AccountStatus { Active, Frozen, Closed }
-internal enum PersonalHolderType { Primary, Beneficiary, Guardian, PowerOfAttorney, Custodian }
-internal enum BusinessHolderType { Operating, Trust, Escrow, Investment, Payroll }
+internal enum AccountType
+{
+    Checking,
+    Savings,
+    Loan,
+    Investment,
+}
+
+internal enum AccountStatus
+{
+    Active,
+    Frozen,
+    Closed,
+}
+
+internal enum AccountHolderType
+{
+    Primary,
+    Beneficiary,
+    Guardian,
+    PowerOfAttorney,
+    Custodian,
+    Operating,
+    Trust,
+    Escrow,
+    Investment,
+    Payroll,
+}

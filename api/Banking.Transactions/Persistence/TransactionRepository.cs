@@ -17,11 +17,11 @@ internal class TransactionRepository(TransactionsDbContext context) : ITransacti
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public async Task<IEnumerable<Transaction>> GetAllByAccountAsync(Guid accountId)
+    public async Task<IEnumerable<Transaction>> GetAllByParticipantAsync(Guid participantId)
     {
         return await context.Transactions
             .Include(t => t.JournalEntries)
-            .Where(t => t.JournalEntries.Any(je => je.AccountId == accountId))
+            .Where(t => t.JournalEntries.Any(je => je.ParticipantId == participantId))
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }

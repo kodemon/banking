@@ -5,8 +5,7 @@ internal interface IAccountRepository
     Task AddAsync(Account account);
 
     Task<Account?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Account>> GetAllByUserAsync(Guid userId);
-    Task<IEnumerable<Account>> GetAllByBusinessAsync(Guid businessId);
+    Task<IEnumerable<Account>> GetAllByHolderAsync(Guid holderId);
 
     Task DeleteAsync(Account account);
 

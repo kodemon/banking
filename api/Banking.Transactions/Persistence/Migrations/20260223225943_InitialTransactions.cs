@@ -35,9 +35,8 @@ namespace Banking.Transactions.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TransactionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ParticipantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Amount = table.Column<long>(type: "bigint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -52,19 +51,19 @@ namespace Banking.Transactions.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_AccountId",
-                table: "JournalEntries",
-                column: "AccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_AccountId_CreatedAt",
-                table: "JournalEntries",
-                columns: new[] { "AccountId", "CreatedAt" });
-
-            migrationBuilder.CreateIndex(
                 name: "IX_JournalEntries_CreatedAt",
                 table: "JournalEntries",
                 column: "CreatedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JournalEntries_ParticipantId",
+                table: "JournalEntries",
+                column: "ParticipantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JournalEntries_ParticipantId_CreatedAt",
+                table: "JournalEntries",
+                columns: new[] { "ParticipantId", "CreatedAt" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_JournalEntries_TransactionId",

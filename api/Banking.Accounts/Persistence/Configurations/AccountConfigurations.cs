@@ -28,12 +28,7 @@ internal class AccountConfiguration : IEntityTypeConfiguration<Account>
 
         builder.Property(a => a.CreatedAt).IsRequired();
 
-        builder.HasMany(a => a.PersonalHolders)
-            .WithOne()
-            .HasForeignKey(h => h.AccountId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(a => a.BusinessHolders)
+        builder.HasMany(a => a.AccountHolders)
             .WithOne()
             .HasForeignKey(h => h.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -44,28 +39,15 @@ internal class AccountConfiguration : IEntityTypeConfiguration<Account>
     }
 }
 
-internal class PersonalAccountHolderConfiguration : IEntityTypeConfiguration<PersonalAccountHolder>
+internal class PersonalAccountHolderConfiguration : IEntityTypeConfiguration<AccountHolder>
 {
-    public void Configure(EntityTypeBuilder<PersonalAccountHolder> builder)
+    public void Configure(EntityTypeBuilder<AccountHolder> builder)
     {
         builder.HasKey(h => h.Id);
-        builder.Property(h => h.UserId).IsRequired();
+        builder.Property(h => h.HolderId).IsRequired();
         builder.Property(h => h.HolderType).IsRequired();
         builder.Property(h => h.CreatedAt).IsRequired();
-        builder.HasIndex(h => h.UserId);
-        builder.HasIndex(h => h.CreatedAt);
-    }
-}
-
-internal class BusinessAccountHolderConfiguration : IEntityTypeConfiguration<BusinessAccountHolder>
-{
-    public void Configure(EntityTypeBuilder<BusinessAccountHolder> builder)
-    {
-        builder.HasKey(h => h.Id);
-        builder.Property(h => h.BusinessId).IsRequired();
-        builder.Property(h => h.HolderType).IsRequired();
-        builder.Property(h => h.CreatedAt).IsRequired();
-        builder.HasIndex(h => h.BusinessId);
+        builder.HasIndex(h => h.HolderId);
         builder.HasIndex(h => h.CreatedAt);
     }
 }

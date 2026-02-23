@@ -16,7 +16,7 @@ internal class TransactionService(ITransactionRepository transactionRepository)
     public async Task<TransactionResponse> CreateDepositAsync(CreateDepositRequest request)
     {
         var transaction = Transaction.CreateDeposit(
-            request.DestinationAccountId,
+            request.DestinationParticipantId,
             request.Amount,
             Currency.FromCode(request.CurrencyCode),
             request.Description
@@ -31,7 +31,7 @@ internal class TransactionService(ITransactionRepository transactionRepository)
     public async Task<TransactionResponse> CreateWithdrawalAsync(CreateWithdrawalRequest request)
     {
         var transaction = Transaction.CreateWithdrawal(
-            request.SourceAccountId,
+            request.SourceParticipantId,
             request.Amount,
             Currency.FromCode(request.CurrencyCode),
             request.Description
@@ -46,8 +46,8 @@ internal class TransactionService(ITransactionRepository transactionRepository)
     public async Task<TransactionResponse> CreateTransferAsync(CreateTransferRequest request)
     {
         var transaction = Transaction.CreateTransfer(
-            request.SourceAccountId,
-            request.DestinationAccountId,
+            request.SourceParticipantId,
+            request.SourceParticipantId,
             request.Amount,
             Currency.FromCode(request.CurrencyCode),
             request.Description
@@ -73,7 +73,7 @@ internal class TransactionService(ITransactionRepository transactionRepository)
 
     public async Task<IEnumerable<TransactionResponse>> GetTransactionsByAccountAsync(Guid accountId)
     {
-        var transactions = await transactionRepository.GetAllByAccountAsync(accountId);
+        var transactions = await transactionRepository.GetAllByParticipantAsync(accountId);
         return transactions.Select(t => t.ToResponse());
     }
 

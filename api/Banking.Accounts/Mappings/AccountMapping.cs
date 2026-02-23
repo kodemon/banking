@@ -10,24 +10,15 @@ internal static class AccountMappings
         Type = account.Type.ToString(),
         Status = account.Status.ToString(),
         Currency = account.Currency.Code,
-        PersonalHolders = account.PersonalHolders.Select(h => h.ToResponse()).ToList(),
-        BusinessHolders = account.BusinessHolders.Select(h => h.ToResponse()).ToList(),
+        Holders = account.AccountHolders.Select(h => h.ToResponse()).ToList(),
         Balance = balance,
         CreatedAt = account.CreatedAt
     };
 
-    public static PersonalHolderResponse ToResponse(this PersonalAccountHolder holder) => new()
+    public static AccountHolderResponse ToResponse(this AccountHolder holder) => new()
     {
         Id = holder.Id,
-        UserId = holder.UserId,
-        HolderType = holder.HolderType.ToString(),
-        CreatedAt = holder.CreatedAt
-    };
-
-    public static BusinessHolderResponse ToResponse(this BusinessAccountHolder holder) => new()
-    {
-        Id = holder.Id,
-        BusinessId = holder.BusinessId,
+        HolderId = holder.HolderId,
         HolderType = holder.HolderType.ToString(),
         CreatedAt = holder.CreatedAt
     };

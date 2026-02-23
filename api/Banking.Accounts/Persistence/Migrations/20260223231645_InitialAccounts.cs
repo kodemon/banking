@@ -27,33 +27,12 @@ namespace Banking.Accounts.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BusinessAccountHolders",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BusinessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    HolderType = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BusinessAccountHolders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BusinessAccountHolders_Accounts_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "Accounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PersonalAccountHolders",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    HolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     HolderType = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -84,21 +63,6 @@ namespace Banking.Accounts.Persistence.Migrations
                 column: "Type");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BusinessAccountHolders_AccountId",
-                table: "BusinessAccountHolders",
-                column: "AccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BusinessAccountHolders_BusinessId",
-                table: "BusinessAccountHolders",
-                column: "BusinessId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BusinessAccountHolders_CreatedAt",
-                table: "BusinessAccountHolders",
-                column: "CreatedAt");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PersonalAccountHolders_AccountId",
                 table: "PersonalAccountHolders",
                 column: "AccountId");
@@ -109,17 +73,14 @@ namespace Banking.Accounts.Persistence.Migrations
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PersonalAccountHolders_UserId",
+                name: "IX_PersonalAccountHolders_HolderId",
                 table: "PersonalAccountHolders",
-                column: "UserId");
+                column: "HolderId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "BusinessAccountHolders");
-
             migrationBuilder.DropTable(
                 name: "PersonalAccountHolders");
 

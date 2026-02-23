@@ -48,10 +48,10 @@ internal class TransactionsController(TransactionService transactionService) : C
         return Ok(transaction);
     }
 
-    [HttpGet("account/{accountId}")]
-    public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByAccount(Guid accountId)
+    [HttpGet("account/{participantId}")]
+    public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByAccount(Guid participantId)
     {
-        var transactions = await transactionService.GetTransactionsByAccountAsync(accountId);
+        var transactions = await transactionService.GetTransactionsByAccountAsync(participantId);
         return Ok(transactions);
     }
 

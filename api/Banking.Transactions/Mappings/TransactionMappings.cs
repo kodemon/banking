@@ -20,9 +20,8 @@ internal static class TransactionMappings
     public static JournalEntryResponse ToResponse(this JournalEntry entry) => new()
     {
         Id = entry.Id,
-        AccountId = entry.AccountId,
+        ParticipantId = entry.ParticipantId,
         Type = entry.Type.ToString(),
-        Amount = entry.Amount,
         CreatedAt = entry.CreatedAt
     };
 }

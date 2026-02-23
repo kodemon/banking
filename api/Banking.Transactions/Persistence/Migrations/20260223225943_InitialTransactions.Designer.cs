@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Banking.Transactions.Persistence.Migrations
 {
     [DbContext(typeof(TransactionsDbContext))]
-    [Migration("20260223223032_InitialTransactions")]
+    [Migration("20260223225943_InitialTransactions")]
     partial class InitialTransactions
     {
         /// <inheritdoc />
@@ -31,14 +31,11 @@ namespace Banking.Transactions.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ParticipantId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TransactionId")
                         .HasColumnType("uniqueidentifier");
@@ -49,13 +46,13 @@ namespace Banking.Transactions.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
-
                     b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ParticipantId");
 
                     b.HasIndex("TransactionId");
 
-                    b.HasIndex("AccountId", "CreatedAt");
+                    b.HasIndex("ParticipantId", "CreatedAt");
 
                     b.ToTable("JournalEntries");
                 });

@@ -55,36 +55,7 @@ namespace Banking.Accounts.Persistence.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("Banking.Accounts.BusinessAccountHolder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("HolderType")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("BusinessId");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.ToTable("BusinessAccountHolders");
-                });
-
-            modelBuilder.Entity("Banking.Accounts.PersonalAccountHolder", b =>
+            modelBuilder.Entity("Banking.Accounts.AccountHolder", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -96,11 +67,11 @@ namespace Banking.Accounts.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("HolderId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("HolderType")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -108,24 +79,15 @@ namespace Banking.Accounts.Persistence.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("HolderId");
 
                     b.ToTable("PersonalAccountHolders");
                 });
 
-            modelBuilder.Entity("Banking.Accounts.BusinessAccountHolder", b =>
+            modelBuilder.Entity("Banking.Accounts.AccountHolder", b =>
                 {
                     b.HasOne("Banking.Accounts.Account", null)
-                        .WithMany("BusinessHolders")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Banking.Accounts.PersonalAccountHolder", b =>
-                {
-                    b.HasOne("Banking.Accounts.Account", null)
-                        .WithMany("PersonalHolders")
+                        .WithMany("AccountHolders")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -133,9 +95,7 @@ namespace Banking.Accounts.Persistence.Migrations
 
             modelBuilder.Entity("Banking.Accounts.Account", b =>
                 {
-                    b.Navigation("BusinessHolders");
-
-                    b.Navigation("PersonalHolders");
+                    b.Navigation("AccountHolders");
                 });
 #pragma warning restore 612, 618
         }

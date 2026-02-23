@@ -1,0 +1,24 @@
+info:
+  name: Create
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:5283/api/accounts
+  body:
+    type: json
+    data: |-
+      {
+        "HolderId": "afbd4388-c321-4777-8511-5913a53cddf0",
+        "HolderType": 0,
+        "Type": 0,
+        "CurrencyCode": "NOK"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

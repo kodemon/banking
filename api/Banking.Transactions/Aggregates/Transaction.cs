@@ -9,12 +9,9 @@ namespace Banking.Transactions;
  |--------------------------------------------------------------------------------
  |
  | A Transaction is the single source of truth for an amount movement. It owns
- | two JournalEntry records — one Credit (money out of an account) and one Debit
- | (money into an account) — implementing double-entry bookkeeping.
- |
- | The Transaction aggregate is responsible for creating its journal entry pair.
- | AccountId references are plain Guids — no navigation properties into
- | Banking.Accounts.
+ | one or two JournalEntry records that record which accounts are affected and
+ | in which direction. The amount is never duplicated onto the entries — they
+ | always read it from their parent Transaction.
  |
  */
 
@@ -61,70 +58,65 @@ internal class Transaction
      |--------------------------------------------------------------------------------
      | Factory Methods
      |--------------------------------------------------------------------------------
-     |
-     | Each transaction type enforces which accounts are involved. A Transfer
-     | requires both a source and destination account. A Deposit only has a
-     | destination. A Withdrawal only has a source.
-     |
      */
 
     public static Transaction CreateDeposit(
-        Guid destinationAccountId,
+        Guid destinationParticipantId,
         long amount,
         Currency currency,
         string description)
     {
         var transaction = new Transaction(TransactionType.Deposit, description, amount, currency);
-        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, destinationAccountId, amount));
+        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, destinationParticipantId));
         return transaction;
     }
 
     public static Transaction CreateWithdrawal(
-        Guid sourceAccountId,
+        Guid sourceParticipantId,
         long amount,
         Currency currency,
         string description)
     {
         var transaction = new Transaction(TransactionType.Withdrawal, description, amount, currency);
-        transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, sourceAccountId, amount));
+        transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, sourceParticipantId));
         return transaction;
     }
 
     public static Transaction CreateTransfer(
-        Guid sourceAccountId,
-        Guid destinationAccountId,
+        Guid sourceParticipantId,
+        Guid destinationParticipantId,
         long amount,
         Currency currency,
         string description)
     {
-        if (sourceAccountId == destinationAccountId)
-            throw new InvalidAggregateOperationException("Source and destination accounts must be different");
+        if (sourceParticipantId == destinationParticipantId)
+            throw new InvalidAggregateOperationException("Source and destination participants must be different");
 
         var transaction = new Transaction(TransactionType.Transfer, description, amount, currency);
-        transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, sourceAccountId, amount));
-        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, destinationAccountId, amount));
+        transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, sourceParticipantId));
+        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, destinationParticipantId));
         return transaction;
     }
 
     public static Transaction CreateFee(
-        Guid accountId,
+        Guid participantId,
         long amount,
         Currency currency,
         string description)
     {
         var transaction = new Transaction(TransactionType.Fee, description, amount, currency);
-        transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, accountId, amount));
+        transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, participantId));
         return transaction;
     }
 
     public static Transaction CreateInterest(
-        Guid accountId,
+        Guid participantId,
         long amount,
         Currency currency,
         string description)
     {
         var transaction = new Transaction(TransactionType.Interest, description, amount, currency);
-        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, accountId, amount));
+        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, participantId));
         return transaction;
     }
 
@@ -172,45 +164,40 @@ internal class Transaction
  | Journal Entry
  |--------------------------------------------------------------------------------
  |
- | Owned by Transaction. AccountId is a plain Guid — no navigation property
- | into Banking.Accounts. The Banking.Accounts module maintains its own local
- | read model (AccountJournalEntry) mapping to this same table for balance
- | calculations.
+ | Records which account is affected and in which direction. Amount is not stored
+ | here — it is always read from the parent Transaction, which is the single
+ | source of truth for the value of the movement.
  |
  */
 
 internal class JournalEntry
 {
     public Guid Id { get; init; }
-
     public Guid TransactionId { get; init; }
 
     // Plain Guid — no navigation property into Banking.Accounts
-    public Guid AccountId { get; init; }
+    public Guid ParticipantId { get; init; }
 
     public JournalEntryType Type { get; init; }
-    public long Amount { get; init; }
 
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
     private JournalEntry() { }
 
-    internal static JournalEntry Credit(Guid transactionId, Guid accountId, long amount) => new()
+    internal static JournalEntry Credit(Guid transactionId, Guid participantId) => new()
     {
         Id = Guid.NewGuid(),
         TransactionId = transactionId,
-        AccountId = accountId,
-        Type = JournalEntryType.Credit,
-        Amount = amount
+        ParticipantId = participantId,
+        Type = JournalEntryType.Credit
     };
 
-    internal static JournalEntry Debit(Guid transactionId, Guid accountId, long amount) => new()
+    internal static JournalEntry Debit(Guid transactionId, Guid participantId) => new()
     {
         Id = Guid.NewGuid(),
         TransactionId = transactionId,
-        AccountId = accountId,
-        Type = JournalEntryType.Debit,
-        Amount = amount
+        ParticipantId = participantId,
+        Type = JournalEntryType.Debit
     };
 }
 
@@ -220,25 +207,6 @@ internal class JournalEntry
  |--------------------------------------------------------------------------------
  */
 
-internal enum TransactionType
-{
-    Deposit,
-    Withdrawal,
-    Transfer,
-    Fee,
-    Interest,
-}
-
-internal enum TransactionStatus
-{
-    Pending,
-    Failed,
-    Reversed,
-    Completed,
-}
-
-internal enum JournalEntryType
-{
-    Credit,
-    Debit,
-}
+internal enum TransactionType { Deposit, Withdrawal, Transfer, Fee, Interest }
+internal enum TransactionStatus { Pending, Failed, Reversed, Completed }
+internal enum JournalEntryType { Credit, Debit }

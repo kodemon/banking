@@ -21,6 +21,8 @@ internal class AccountService(IAccountRepository accountRepository, IBalanceServ
             Currency.FromCode(request.CurrencyCode)
         );
 
+        account.AddHolder(request.HolderId, request.HolderType);
+
         await accountRepository.AddAsync(account);
         await accountRepository.SaveChangesAsync();
 
@@ -34,15 +36,9 @@ internal class AccountService(IAccountRepository accountRepository, IBalanceServ
         return account.ToResponse(balance);
     }
 
-    public async Task<IEnumerable<AccountResponse>> GetAccountsByUserAsync(Guid userId)
+    public async Task<IEnumerable<AccountResponse>> GetAccountsByHolderAsync(Guid holderId)
     {
-        var accounts = await accountRepository.GetAllByUserAsync(userId);
-        return await ToResponsesAsync(accounts);
-    }
-
-    public async Task<IEnumerable<AccountResponse>> GetAccountsByBusinessAsync(Guid businessId)
-    {
-        var accounts = await accountRepository.GetAllByBusinessAsync(businessId);
+        var accounts = await accountRepository.GetAllByHolderAsync(holderId);
         return await ToResponsesAsync(accounts);
     }
 
@@ -77,10 +73,10 @@ internal class AccountService(IAccountRepository accountRepository, IBalanceServ
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<PersonalHolderResponse> AddPersonalHolderAsync(Guid accountId, AddPersonalHolderRequest request)
+    public async Task<AccountHolderResponse> AddAccountHolderAsync(Guid accountId, AddAccountHolderRequest request)
     {
         var account = await GetAccount(accountId);
-        var holder = account.AddPersonalHolder(request.UserId, request.HolderType);
+        var holder = account.AddHolder(request.HolderId, request.HolderType);
         await accountRepository.SaveChangesAsync();
         return holder.ToResponse();
     }
@@ -88,28 +84,7 @@ internal class AccountService(IAccountRepository accountRepository, IBalanceServ
     public async Task RemovePersonalHolderAsync(Guid accountId, Guid holderId)
     {
         var account = await GetAccount(accountId);
-        account.RemovePersonalHolder(holderId);
-        await accountRepository.SaveChangesAsync();
-    }
-
-    /*
-     |--------------------------------------------------------------------------------
-     | Business Holders
-     |--------------------------------------------------------------------------------
-     */
-
-    public async Task<BusinessHolderResponse> AddBusinessHolderAsync(Guid accountId, AddBusinessHolderRequest request)
-    {
-        var account = await GetAccount(accountId);
-        var holder = account.AddBusinessHolder(request.BusinessId, request.HolderType);
-        await accountRepository.SaveChangesAsync();
-        return holder.ToResponse();
-    }
-
-    public async Task RemoveBusinessHolderAsync(Guid accountId, Guid holderId)
-    {
-        var account = await GetAccount(accountId);
-        account.RemoveBusinessHolder(holderId);
+        account.RemoveHolder(holderId);
         await accountRepository.SaveChangesAsync();
     }
 

@@ -13,5 +13,5 @@ namespace Banking.Transactions;
 
 public interface IBalanceService
 {
-    Task<long> GetBalanceAsync(Guid accountId);
+    Task<long> GetBalanceAsync(Guid participantId);
 }

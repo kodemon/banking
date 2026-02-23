@@ -59,15 +59,12 @@ internal class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry
             .HasConversion<string>()
             .IsRequired();
 
-        builder.Property(je => je.Amount).IsRequired();
-        builder.Property(je => je.AccountId).IsRequired();
+        builder.Property(je => je.ParticipantId).IsRequired();
         builder.Property(je => je.CreatedAt).IsRequired();
 
-        builder.HasIndex(je => je.AccountId);
+        builder.HasIndex(je => je.ParticipantId);
         builder.HasIndex(je => je.TransactionId);
         builder.HasIndex(je => je.CreatedAt);
-
-        // Composite index used by Banking.Accounts for balance calculations
-        builder.HasIndex(je => new { je.AccountId, je.CreatedAt });
+        builder.HasIndex(je => new { je.ParticipantId, je.CreatedAt });
     }
 }

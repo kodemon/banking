@@ -28,17 +28,10 @@ internal class AccountsController(AccountService accountService) : ControllerBas
         return Ok(account);
     }
 
-    [HttpGet("user/{userId}")]
-    public async Task<ActionResult<IEnumerable<AccountResponse>>> GetAccountsByUser(Guid userId)
+    [HttpGet("holder/{holderId}")]
+    public async Task<ActionResult<IEnumerable<AccountResponse>>> GetAccountsByHolder(Guid holderId)
     {
-        var accounts = await accountService.GetAccountsByUserAsync(userId);
-        return Ok(accounts);
-    }
-
-    [HttpGet("business/{businessId}")]
-    public async Task<ActionResult<IEnumerable<AccountResponse>>> GetAccountsByBusiness(Guid businessId)
-    {
-        var accounts = await accountService.GetAccountsByBusinessAsync(businessId);
+        var accounts = await accountService.GetAccountsByHolderAsync(holderId);
         return Ok(accounts);
     }
 
@@ -65,14 +58,14 @@ internal class AccountsController(AccountService accountService) : ControllerBas
 
     /*
      |--------------------------------------------------------------------------------
-     | Personal Holders
+     | Account Holders
      |--------------------------------------------------------------------------------
      */
 
     [HttpPost("{id}/holders/personal")]
-    public async Task<ActionResult<PersonalHolderResponse>> AddPersonalHolder(Guid id, [FromBody] AddPersonalHolderRequest request)
+    public async Task<ActionResult<AccountHolderResponse>> AddPersonalHolder(Guid id, [FromBody] AddAccountHolderRequest request)
     {
-        var holder = await accountService.AddPersonalHolderAsync(id, request);
+        var holder = await accountService.AddAccountHolderAsync(id, request);
         return Ok(holder);
     }
 
@@ -80,26 +73,6 @@ internal class AccountsController(AccountService accountService) : ControllerBas
     public async Task<IActionResult> RemovePersonalHolder(Guid id, Guid holderId)
     {
         await accountService.RemovePersonalHolderAsync(id, holderId);
-        return NoContent();
-    }
-
-    /*
-     |--------------------------------------------------------------------------------
-     | Business Holders
-     |--------------------------------------------------------------------------------
-     */
-
-    [HttpPost("{id}/holders/business")]
-    public async Task<ActionResult<BusinessHolderResponse>> AddBusinessHolder(Guid id, [FromBody] AddBusinessHolderRequest request)
-    {
-        var holder = await accountService.AddBusinessHolderAsync(id, request);
-        return Ok(holder);
-    }
-
-    [HttpDelete("{id}/holders/business/{holderId}")]
-    public async Task<IActionResult> RemoveBusinessHolder(Guid id, Guid holderId)
-    {
-        await accountService.RemoveBusinessHolderAsync(id, holderId);
         return NoContent();
     }
 }

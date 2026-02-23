@@ -5,14 +5,20 @@ namespace Banking.Transactions;
 
 internal class BalanceService(TransactionsDbContext context) : IBalanceService
 {
-    public async Task<long> GetBalanceAsync(Guid accountId)
+    public async Task<long> GetBalanceAsync(Guid participantId)
     {
         var entries = await context.JournalEntries
-            .Where(je => je.AccountId == accountId)
+            .Where(je => je.ParticipantId == participantId)
+            .Join(
+                context.Transactions,
+                je => je.TransactionId,
+                t => t.Id,
+                (je, t) => new { je.Type, t.Amount }
+            )
             .ToListAsync();
 
-        return entries.Sum(je => je.Type == JournalEntryType.Debit
-            ? je.Amount
-            : -je.Amount);
+        return entries.Sum(e => e.Type == JournalEntryType.Debit
+            ? e.Amount
+            : -e.Amount);
     }
 }

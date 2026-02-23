@@ -1,34 +1,15 @@
 # Banking
 
-## Linux Commands
-
-```sh
-find . -name "*.cs" -type f -exec echo "=== {} ===" \; -exec cat {} \; -exec echo "" \;
-```
-
-# Banking.Api
-
-## Run
-
-To start the API run:
-
-```sh
-dotnet run --project api/Banking.Api
-```
-
-# Banking.Infrastructure
-
-## Migrations
+# Migrations
 
 ### Create Migration
 
-From the /api folder in your terminal run:
+To generate migrations for each domain run:
 
 ```sh
-$ dotnet ef migrations add Initial \
-  --project src/Banking.Infrastructure \
-  --startup-project src/Banking.Api \
-  --output-dir Persistence/Migrations
+dotnet ef migrations add InitialAccounts --project api/Banking.Accounts --output-dir Persistence/Migrations
+dotnet ef migrations add InitialTransactions --project api/Banking.Transactions --output-dir Persistence/Migrations
+dotnet ef migrations add InitialUsers --project api/Banking.Users --output-dir Persistence/Migrations
 ```
 
 ### Apply Migration
@@ -36,7 +17,15 @@ $ dotnet ef migrations add Initial \
 Once migration updates has been generated run:
 
 ```sh
-$ dotnet ef database update \
-  --project src/Banking.Infrastructure \
-  --startup-project src/Banking.Api
+dotnet ef database update --project api/Banking.Accounts
+dotnet ef database update --project api/Banking.Transactions
+dotnet ef database update --project api/Banking.Users
+```
+
+# Run
+
+To start the API run:
+
+```sh
+dotnet run --project api/Banking.Api
 ```
