@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "🦕 App",
+			"path": "./app"
+		},
+		{
+			"name": "🧩 Api",
+			"path": "./api"
+		},
+		{
+			"name": "🌳 Root",
+			"path": "."
+		}
+	],
+	"settings": {}
+}

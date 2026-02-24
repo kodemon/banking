@@ -1,11 +1,13 @@
 using Banking.Accounts.DTO.Requests;
 using Banking.Accounts.DTO.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Banking.Accounts;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 internal class AccountsController(AccountService accountService) : ControllerBase
 {
     /*
