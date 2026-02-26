@@ -31,3 +31,9 @@ public record Name
         }
     }
 }
+
+public record NameInput
+{
+    public required string Family { get; init; }
+    public required string Given { get; init; }
+}

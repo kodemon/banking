@@ -20,7 +20,7 @@ internal class UserService(IUserRepository userRepository)
             throw new AggregateConflictException($"Email '{request.Email}' is already registered");
         }
 
-        var user = new User(request.Name, request.DateOfBirth);
+        var user = new User(new Name(request.Name.Family, request.Name.Given), request.DateOfBirth);
 
         user.AddEmail(new Email(request.Email, EmailType.Primary));
 

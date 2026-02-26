@@ -1,8 +1,19 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppController } from "@/domains/app/app.controller";
+import { CreatePrincipal } from "@/domains/principal/components/CreatePrincipal";
+import { makeControllerComponent } from "@/lib/controller";
+
+const AppLayout = makeControllerComponent(AppController, ({ hasPrincipal }) => {
+  if (hasPrincipal === false) {
+    return <CreatePrincipal />;
+  }
+  return (
+    <div>
+      <Outlet />
+    </div>
+  );
+});
 
 export const Route = createFileRoute("/_auth")({
   beforeLoad: async ({ context: { auth } }) => {
@@ -13,28 +24,3 @@ export const Route = createFileRoute("/_auth")({
   },
   component: AppLayout,
 });
-
-function AppLayout() {
-  return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <Outlet />
-            </div>
-          </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
-  );
-}

@@ -1,11 +1,13 @@
 using Banking.Transactions.DTO.Requests;
 using Banking.Transactions.DTO.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Banking.Transactions;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 internal class TransactionsController(TransactionService transactionService) : ControllerBase
 {
     /*

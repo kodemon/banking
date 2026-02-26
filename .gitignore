@@ -427,6 +427,10 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Generated
+/Banking.Api.json
+/app/src/openapi.gen.ts
+
 api/Banking.Accounts/bin
 api/Banking.Accounts/obj
 api/Banking.Transactions/bin

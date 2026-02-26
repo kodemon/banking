@@ -1,3 +1,5 @@
+using Banking.Shared.AccessControl;
+using Banking.Users.AccessControl;
 using Banking.Users.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +32,10 @@ public static class UsersModule
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<UserService>();
+
+        // ### Access Control
+
+        services.AddSingleton<IAccessAttributeResolver, UserAccessAttributeResolver>();
 
         return services;
     }

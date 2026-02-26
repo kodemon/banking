@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="AccessControl/" />
     <Folder Include="Aggregates/" />
     <Folder Include="Interfaces/" />
     <Folder Include="Mappings/" />

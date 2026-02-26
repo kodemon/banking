@@ -9,13 +9,23 @@
   <ItemGroup>
     <ProjectReference Include="..\Banking.Users\Banking.Users.csproj" />
     <ProjectReference Include="..\Banking.Accounts\Banking.Accounts.csproj" />
+    <ProjectReference Include="..\Banking.Principals\Banking.Principals.csproj" />
     <ProjectReference Include="..\Banking.Transactions\Banking.Transactions.csproj" />
     <ProjectReference Include="..\Banking.Shared\Banking.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.3" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Scalar.AspNetCore" Version="2.*" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../../</OpenApiDocumentsDirectory>
+    <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+  </PropertyGroup>
 
 </Project>

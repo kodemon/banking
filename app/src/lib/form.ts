@@ -1,4 +1,4 @@
-import z, { type ZodObject, type ZodRawShape } from "zod";
+import z, { type ZodError, type ZodObject, type ZodRawShape } from "zod";
 
 export class Form<TSchema extends ZodRawShape, TInputs = z.infer<ZodObject<TSchema>>> {
   readonly schema: ZodObject<TSchema>;
@@ -195,7 +195,6 @@ export class Form<TSchema extends ZodRawShape, TInputs = z.infer<ZodObject<TSche
       }
     }
     this.#onProcessing?.(false);
-    this.reset();
   }
 
   validate(name?: keyof TInputs) {
@@ -229,14 +228,7 @@ export class Form<TSchema extends ZodRawShape, TInputs = z.infer<ZodObject<TSche
   #getFormErrors(): FormErrors<TInputs> {
     const result = this.schema.safeParse(this.inputs);
     if (result.success === false) {
-      throw result.error.flatten;
-      // return result.error.details.reduce<Partial<TInputs>>(
-      //   (error, next) => ({
-      //     ...error,
-      //     [next.path[0]]: next.message,
-      //   }),
-      //   {},
-      // );
+      return zodErrorToRecord(result.error);
     }
     return {};
   }
@@ -267,3 +259,18 @@ type FormDebounce<TInputs> = {
 type FormErrors<TInputs> = {
   [TKey in keyof TInputs]?: string;
 };
+
+export function zodErrorToRecord(error: ZodError): Record<string, string> {
+  const record: Record<string, string> = {};
+
+  for (const issue of error.issues) {
+    const key = issue.path.join(".");
+
+    // keep first error per field (form-friendly)
+    if (!record[key]) {
+      record[key] = issue.message;
+    }
+  }
+
+  return record;
+}

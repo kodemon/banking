@@ -4,14 +4,14 @@ namespace Banking.Users.DTO.Requests;
 
 internal record CreateUserRequest
 {
-    public required Name Name { get; init; }
+    public required NameInput Name { get; init; }
     public required DateTime DateOfBirth { get; init; }
     public required string Email { get; init; }
 }
 
 internal record UpdateUserRequest
 {
-    public Name? Name { get; init; }
+    public NameInput? Name { get; init; }
 }
 
 internal record AddEmailRequest

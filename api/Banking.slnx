@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Banking.Accounts/Banking.Accounts.csproj" />
+  <Project Path="Banking.Principals/Banking.Principals.csproj" />
   <Project Path="Banking.Shared/Banking.Shared.csproj" />
   <Project Path="Banking.Api/Banking.Api.csproj" />
   <Project Path="Banking.Transactions/Banking.Transactions.csproj" />
