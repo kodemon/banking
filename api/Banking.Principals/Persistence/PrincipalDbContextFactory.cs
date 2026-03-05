@@ -18,7 +18,7 @@ internal class PrincipalDbContextFactory : IDesignTimeDbContextFactory<Principal
     public PrincipalDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<PrincipalDbContext>()
-            .UseSqlServer("Server=localhost,1433;Database=Banking;User Id=sa;Password=!Password1;TrustServerCertificate=True;")
+            .UseSqlite("Data Source=banking-principals.db")
             .Options;
 
         return new PrincipalDbContext(options);

@@ -4,7 +4,9 @@ using Banking.Api.Exceptions;
 using Banking.Principal;
 using Banking.Transactions;
 using Banking.Users;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +14,38 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 /*
  |--------------------------------------------------------------------------------
+ | Authentication
+ |--------------------------------------------------------------------------------
+ */
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["Zitadel:Authority"];
+        options.Audience = builder.Configuration["Zitadel:Audience"];
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Zitadel:Authority"],
+            ValidAudience = builder.Configuration["Zitadel:Audience"],
+            NameClaimType = "preferred_username",
+            RoleClaimType = System.Security.Claims.ClaimTypes.Role
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+/*
+ |--------------------------------------------------------------------------------
  | Modules
  |--------------------------------------------------------------------------------
  */
+
 builder.Services
     .AddControllers()
     .AddApplicationPart(typeof(UsersModule).Assembly)
@@ -26,15 +57,17 @@ builder.Services
         manager.FeatureProviders.Add(new InternalControllerFeatureProvider());
     });
 
-builder.Services.AddUsersModule(connectionString);
-builder.Services.AddAccountsModule(connectionString);
-builder.Services.AddTransactionsModule(connectionString);
+builder.Services.AddUsersModule();
+builder.Services.AddAccountsModule();
+builder.Services.AddPrincipalsModule();
+builder.Services.AddTransactionsModule();
 
 /*
  |--------------------------------------------------------------------------------
  | Exception Handling
  |--------------------------------------------------------------------------------
  */
+
 builder.Services.AddExceptionHandler<AppExceptionHandler>();
 builder.Services.AddProblemDetails(options =>
 {
@@ -67,8 +100,16 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();                  // serves spec at /openapi/v1.json
     app.MapScalarApiReference();       // UI at /scalar/v1
 }
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
+
+app.UseAuthentication();    // ← validate Zitadel JWT + trigger claims transformation
+app.UseAuthorization();     // ← enforce [Authorize] attributes
+
 app.MapControllers();
+
 app.Run();

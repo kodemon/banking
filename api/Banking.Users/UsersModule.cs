@@ -22,12 +22,15 @@ namespace Banking.Users;
 
 public static class UsersModule
 {
-    public static IServiceCollection AddUsersModule(
-        this IServiceCollection services,
-        string connectionString)
+    public static IServiceCollection AddUsersModule(this IServiceCollection services)
     {
+        var moduleDirectory = Path.GetDirectoryName(
+            typeof(UsersModule).Assembly.Location)!;
+
+        var dbPath = Path.Combine(moduleDirectory, "banking-users.db");
+
         services.AddDbContext<UsersDbContext>(options =>
-            options.UseSqlServer(connectionString)
+            options.UseSqlite($"Data Source={dbPath}")
         );
 
         services.AddScoped<IUserRepository, UserRepository>();

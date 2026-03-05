@@ -24,7 +24,7 @@ internal class TransactionsDbContextFactory : IDesignTimeDbContextFactory<Transa
     public TransactionsDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<TransactionsDbContext>()
-            .UseSqlServer("Server=localhost,1433;Database=Banking;User Id=sa;Password=!Password1;TrustServerCertificate=True;")
+            .UseSqlite("Data Source=banking-transactions.db")
             .Options;
 
         return new TransactionsDbContext(options);

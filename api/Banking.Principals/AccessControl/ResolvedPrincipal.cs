@@ -21,11 +21,11 @@ namespace Banking.Principal.AccessControl;
  |
  */
 
-internal record ResolvedPrincipal(
+public record ResolvedPrincipal(
     Guid Id,
     IReadOnlyCollection<ResolvedIdentity> Identities,
     IReadOnlyCollection<string> Roles,
     IReadOnlyDictionary<string, object> Attributes
 );
 
-internal record ResolvedIdentity(string Provider, string ExternalId);
+public record ResolvedIdentity(string Provider, string ExternalId);

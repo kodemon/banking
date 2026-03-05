@@ -6,12 +6,15 @@ namespace Banking.Transactions;
 
 public static class TransactionsModule
 {
-    public static IServiceCollection AddTransactionsModule(
-        this IServiceCollection services,
-        string connectionString)
+    public static IServiceCollection AddTransactionsModule(this IServiceCollection services)
     {
+        var moduleDirectory = Path.GetDirectoryName(
+            typeof(TransactionsModule).Assembly.Location)!;
+
+        var dbPath = Path.Combine(moduleDirectory, "banking-transactions.db");
+
         services.AddDbContext<TransactionsDbContext>(options =>
-            options.UseSqlServer(connectionString)
+            options.UseSqlite($"Data Source={dbPath}")
         );
 
         services.AddScoped<ITransactionRepository, TransactionRepository>();

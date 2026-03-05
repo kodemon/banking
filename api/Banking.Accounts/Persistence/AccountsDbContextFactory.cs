@@ -24,7 +24,7 @@ internal class AccountsDbContextFactory : IDesignTimeDbContextFactory<AccountsDb
     public AccountsDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<AccountsDbContext>()
-            .UseSqlServer("Server=localhost,1433;Database=Banking;User Id=sa;Password=!Password1;TrustServerCertificate=True;")
+            .UseSqlite("Data Source=banking-accounts.db")
             .Options;
 
         return new AccountsDbContext(options);
