@@ -8,6 +8,8 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(u => u.Id);
+        builder.Property(u => u.Id)
+            .ValueGeneratedNever();
 
         builder.OwnsOne(u => u.Name, name =>
         {
@@ -36,6 +38,8 @@ internal class UserEmailConfiguration : IEntityTypeConfiguration<UserEmail>
     public void Configure(EntityTypeBuilder<UserEmail> builder)
     {
         builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id)
+            .ValueGeneratedNever();
 
         builder.OwnsOne(e => e.Email, email =>
         {
@@ -54,6 +58,8 @@ internal class UserAddressConfiguration : IEntityTypeConfiguration<UserAddress>
     public void Configure(EntityTypeBuilder<UserAddress> builder)
     {
         builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id)
+            .ValueGeneratedNever();
 
         builder.OwnsOne(a => a.Address, address =>
         {

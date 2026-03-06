@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Banking.Principal;
 
 internal interface IPrincipalRepository

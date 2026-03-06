@@ -9,6 +9,8 @@ internal class AccountConfiguration : IEntityTypeConfiguration<Account>
     public void Configure(EntityTypeBuilder<Account> builder)
     {
         builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id)
+            .ValueGeneratedNever();
 
         builder.Property(a => a.Type)
             .HasConversion<string>()
@@ -44,9 +46,15 @@ internal class PersonalAccountHolderConfiguration : IEntityTypeConfiguration<Acc
     public void Configure(EntityTypeBuilder<AccountHolder> builder)
     {
         builder.HasKey(h => h.Id);
+        builder.Property(h => h.Id)
+            .ValueGeneratedNever();
+
         builder.Property(h => h.HolderId).IsRequired();
+
         builder.Property(h => h.HolderType).IsRequired();
+
         builder.Property(h => h.CreatedAt).IsRequired();
+
         builder.HasIndex(h => h.HolderId);
         builder.HasIndex(h => h.CreatedAt);
     }

@@ -127,7 +127,6 @@ internal class Principal
     public PrincipalAttribute SetAttribute(string domain, string key, string value)
     {
         var existing = _attributes.FirstOrDefault(a => a.Domain == domain && a.Key == key);
-
         if (existing is not null)
         {
             existing.Value = value;
@@ -145,6 +144,7 @@ internal class Principal
         };
 
         _attributes.Add(attribute);
+
         return attribute;
     }
 
@@ -157,10 +157,6 @@ internal class Principal
         _attributes.Remove(existing);
     }
 
-    /// <summary>
-    /// Returns all stored attributes for a specific domain, keyed by attribute key.
-    /// Passed to the domain resolver during principal resolution.
-    /// </summary>
     public IReadOnlyDictionary<string, string> GetDomainAttributes(string domain) =>
         _attributes
             .Where(a => a.Domain == domain)

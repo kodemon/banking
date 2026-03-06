@@ -8,21 +8,35 @@ internal class PrincipalConfiguration : IEntityTypeConfiguration<Principal>
     public void Configure(EntityTypeBuilder<Principal> builder)
     {
         builder.HasKey(p => p.Id);
+        builder.Property(p => p.Id)
+            .ValueGeneratedNever();
 
         builder.HasMany(p => p.Identities)
             .WithOne()
             .HasForeignKey(i => i.PrincipalId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(p => p.Identities)
+            .HasField("_identities")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasMany(p => p.Roles)
             .WithOne()
             .HasForeignKey(r => r.PrincipalId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(p => p.Roles)
+            .HasField("_roles")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasMany(p => p.Attributes)
             .WithOne()
             .HasForeignKey(a => a.PrincipalId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(p => p.Attributes)
+            .HasField("_attributes")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(p => p.CreatedAt).IsRequired();
     }
@@ -33,6 +47,8 @@ internal class PrincipalIdentityConfiguration : IEntityTypeConfiguration<Princip
     public void Configure(EntityTypeBuilder<PrincipalIdentity> builder)
     {
         builder.HasKey(i => i.Id);
+        builder.Property(i => i.Id)
+            .ValueGeneratedNever();
 
         builder.Property(i => i.Provider)
             .HasMaxLength(100)
@@ -57,6 +73,8 @@ internal class PrincipalRoleConfiguration : IEntityTypeConfiguration<PrincipalRo
     public void Configure(EntityTypeBuilder<PrincipalRole> builder)
     {
         builder.HasKey(r => r.Id);
+        builder.Property(r => r.Id)
+            .ValueGeneratedNever();
 
         builder.Property(r => r.Role)
             .HasMaxLength(100)
@@ -74,6 +92,8 @@ internal class PrincipalAttributeConfiguration : IEntityTypeConfiguration<Princi
     public void Configure(EntityTypeBuilder<PrincipalAttribute> builder)
     {
         builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id)
+            .ValueGeneratedNever();
 
         builder.Property(a => a.Domain)
             .HasMaxLength(100)

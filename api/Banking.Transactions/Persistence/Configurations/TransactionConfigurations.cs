@@ -9,6 +9,8 @@ internal class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
     public void Configure(EntityTypeBuilder<Transaction> builder)
     {
         builder.HasKey(t => t.Id);
+        builder.Property(t => t.Id)
+            .ValueGeneratedNever();
 
         builder.Property(t => t.Type)
             .HasConversion<string>()
@@ -54,6 +56,8 @@ internal class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry
     public void Configure(EntityTypeBuilder<JournalEntry> builder)
     {
         builder.HasKey(je => je.Id);
+        builder.Property(je => je.Id)
+            .ValueGeneratedNever();
 
         builder.Property(je => je.Type)
             .HasConversion<string>()
