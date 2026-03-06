@@ -1,3 +1,4 @@
+using Banking.Shared.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -24,7 +25,7 @@ internal class UsersDbContextFactory : IDesignTimeDbContextFactory<UsersDbContex
     public UsersDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<UsersDbContext>()
-            .UseSqlite("Data Source=banking-users.db")
+            .UseSqlite(SQLiteConnection.Load("users"))
             .Options;
 
         return new UsersDbContext(options);

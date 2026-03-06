@@ -1,30 +1,32 @@
 # Banking
 
-# Migrations
+## Env
+
+```env
+SQLITE_DB_CONNECTION=Data Source=data/dev.db
+```
+
+## Migrations
 
 ### Create Migration
 
 To generate migrations for each domain run:
 
 ```sh
-dotnet ef migrations add InitialAccounts --project api/Banking.Accounts --output-dir Persistence/Migrations
-dotnet ef migrations add InitialPrincipals --project api/Banking.Principals --output-dir Persistence/Migrations
-dotnet ef migrations add InitialTransactions --project api/Banking.Transactions --output-dir Persistence/Migrations
-dotnet ef migrations add InitialUsers --project api/Banking.Users --output-dir Persistence/Migrations
+./scripts/migration/create.sh $DOMAIN $MIGRATION_NAME
 ```
+
+Example: `./scripts/migration/create.sh accounts init`
 
 ### Apply Migration
 
 Once migration updates has been generated run:
 
 ```sh
-dotnet ef database update --project api/Banking.Accounts
-dotnet ef database update --project api/Banking.Principals
-dotnet ef database update --project api/Banking.Transactions
-dotnet ef database update --project api/Banking.Users
+./scripts/migration/update.sh
 ```
 
-# Run
+## Run
 
 To start the API run:
 

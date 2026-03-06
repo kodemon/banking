@@ -1,3 +1,4 @@
+using Banking.Shared.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -18,7 +19,7 @@ internal class PrincipalDbContextFactory : IDesignTimeDbContextFactory<Principal
     public PrincipalDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<PrincipalDbContext>()
-            .UseSqlite("Data Source=banking-principals.db")
+            .UseSqlite(SQLiteConnection.Load("principals"))
             .Options;
 
         return new PrincipalDbContext(options);

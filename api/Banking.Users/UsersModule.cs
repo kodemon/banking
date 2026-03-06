@@ -1,4 +1,5 @@
 using Banking.Shared.AccessControl;
+using Banking.Shared.Database;
 using Banking.Users.AccessControl;
 using Banking.Users.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -24,13 +25,10 @@ public static class UsersModule
 {
     public static IServiceCollection AddUsersModule(this IServiceCollection services)
     {
-        var moduleDirectory = Path.GetDirectoryName(
-            typeof(UsersModule).Assembly.Location)!;
-
-        var dbPath = Path.Combine(moduleDirectory, "banking-users.db");
-
         services.AddDbContext<UsersDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}")
+            options.UseSqlite(SQLiteConnection.Load("users"), sqliteOptions =>
+                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            )
         );
 
         services.AddScoped<IUserRepository, UserRepository>();

@@ -16,14 +16,14 @@ export class CreatePrincipalController extends Controller<{
       isProcessing: false,
       form: new Form(PrincipalFormSchema)
         .onSubmit(async (data) => {
-          await api.POST("/api/Users", {
+          await api.POST("/api/Registration", {
             body: {
               name: {
                 given: data.givenName,
                 family: data.familyName,
               },
               email: data.email,
-              dateOfBirth: data.dateOfBirth.toUTCString(),
+              dateOfBirth: data.dateOfBirth.toISOString(),
             },
           });
         })
@@ -38,7 +38,7 @@ export class CreatePrincipalController extends Controller<{
   }
 
   async #getPrincipal() {
-    const { error, data } = await api.GET("/api/Principal");
+    const { error, data } = await api.GET("/api/Principal/me");
     if (error) {
       console.log(error);
       return;

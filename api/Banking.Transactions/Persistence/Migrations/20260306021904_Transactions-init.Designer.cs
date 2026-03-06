@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Banking.Transactions.Persistence.Migrations
 {
     [DbContext(typeof(TransactionsDbContext))]
-    [Migration("20260305214655_InitialTransactions")]
-    partial class InitialTransactions
+    [Migration("20260306021904_Transactions-init")]
+    partial class Transactionsinit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

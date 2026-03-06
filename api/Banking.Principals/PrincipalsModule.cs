@@ -1,8 +1,12 @@
 ﻿using Banking.Principal.AccessControl;
 using Banking.Principal.Persistence;
+using Banking.Shared.AccessControl;
+using Banking.Shared.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Zitadel.Credentials;
 
 namespace Banking.Principal;
 
@@ -25,19 +29,35 @@ namespace Banking.Principal;
 
 public static class PrincipalsModule
 {
-    public static IServiceCollection AddPrincipalsModule(this IServiceCollection services)
+    public static IServiceCollection AddPrincipalsModule(this IServiceCollection services, IConfiguration configuration)
     {
-        var moduleDirectory = Path.GetDirectoryName(
-            typeof(PrincipalsModule).Assembly.Location)!;
-
-        var dbPath = Path.Combine(moduleDirectory, "banking-principals.db");
-
         services.AddDbContext<PrincipalDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}")
+            options.UseSqlite(SQLiteConnection.Load("principals"), sqliteOptions =>
+                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            )
         );
 
         services.AddScoped<IPrincipalRepository, PrincipalRepository>();
         services.AddScoped<PrincipalService>();
+
+        /*
+         |--------------------------------------------------------------------------------
+         | Zitadel
+         |--------------------------------------------------------------------------------
+         */
+
+        var authority = configuration["Zitadel:Authority"]!;
+        var keyFilePath = configuration["Zitadel:ServiceAccountKeyPath"]!;
+        var serviceAccount = ServiceAccount.LoadFromJsonFile(keyFilePath);
+
+        services.AddSingleton(serviceAccount);
+        services
+            .AddHttpClient<ZitadelMetadataService>(client =>
+                {
+                    client.BaseAddress = new Uri(authority);
+                }
+            )
+            .AddTypedClient((http, sp) => new ZitadelMetadataService(http, sp.GetRequiredService<ServiceAccount>(), authority));
 
         /*
          |--------------------------------------------------------------------------------
@@ -49,17 +69,15 @@ public static class PrincipalsModule
          |
          */
 
-        services.AddSingleton<PrincipalResolver>(sp =>
+        services.AddSingleton(sp =>
         {
-            var resolvers = sp.GetServices<Banking.Shared.AccessControl.IAccessAttributeResolver>();
+            var resolvers = sp.GetServices<IAccessAttributeResolver>();
             return new PrincipalResolver(resolvers);
         });
 
-        // Principal context — scoped so it's per-request
         services.AddScoped<PrincipalContext>();
         services.AddScoped<IPrincipalContext>(sp => sp.GetRequiredService<PrincipalContext>());
 
-        // Claims transformation — runs automatically after JWT validation
         services.AddScoped<IClaimsTransformation, ZitadelClaimsTransformation>();
 
         return services;

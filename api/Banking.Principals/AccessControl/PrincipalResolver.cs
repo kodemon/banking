@@ -48,10 +48,6 @@ internal class PrincipalResolver(IEnumerable<IAccessAttributeResolver> resolvers
         );
     }
 
-    /// <summary>
-    /// Returns the resolver for a given domain, or null if no domain is registered.
-    /// Used by PrincipalService to validate attribute updates.
-    /// </summary>
     public IAccessAttributeResolver? GetResolver(string domain) =>
         _resolvers.TryGetValue(domain, out var resolver) ? resolver : null;
 }

@@ -9,6 +9,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Banking.Shared\Banking.Shared.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <InternalsVisibleTo Include="Banking.Api" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />

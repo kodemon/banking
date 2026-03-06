@@ -32,8 +32,9 @@ internal class PrincipalService(
     public async Task<PrincipalResponse> CreatePrincipalAsync(CreatePrincipalRequest request)
     {
         if (await principalRepository.IdentityExistsAsync(request.Provider, request.ExternalId))
-            throw new AggregateConflictException(
-                $"Identity '{request.Provider}:{request.ExternalId}' is already bound to a principal.");
+        {
+            throw new AggregateConflictException($"Identity '{request.Provider}:{request.ExternalId}' is already bound to a principal.");
+        }
 
         var principal = Principal.Create();
         principal.AddIdentity(request.Provider, request.ExternalId);
@@ -52,10 +53,11 @@ internal class PrincipalService(
 
     public async Task<PrincipalResponse> GetByIdentityAsync(string provider, string externalId)
     {
-        var principal = await principalRepository.GetByIdentityAsync(provider, externalId)
-            ?? throw new AggregateNotFoundException(
-                $"No principal found for identity '{provider}:{externalId}'.");
-
+        var principal = await principalRepository.GetByIdentityAsync(provider, externalId);
+        if (principal is null)
+        {
+            throw new AggregateNotFoundException($"No principal found for identity '{provider}:{externalId}'.");
+        }
         return principal.ToResponse();
     }
 
@@ -81,8 +83,9 @@ internal class PrincipalService(
     public async Task<PrincipalResponse> AddIdentityAsync(Guid id, AddIdentityRequest request)
     {
         if (await principalRepository.IdentityExistsAsync(request.Provider, request.ExternalId))
-            throw new AggregateConflictException(
-                $"Identity '{request.Provider}:{request.ExternalId}' is already bound to a principal.");
+        {
+            throw new AggregateConflictException($"Identity '{request.Provider}:{request.ExternalId}' is already bound to a principal.");
+        }
 
         var principal = await GetPrincipal(id);
         principal.AddIdentity(request.Provider, request.ExternalId);
@@ -130,17 +133,22 @@ internal class PrincipalService(
 
     public async Task<PrincipalResponse> SetAttributeAsync(Guid id, SetAttributeRequest request)
     {
-        var resolver = principalResolver.GetResolver(request.Domain)
-            ?? throw new AggregateNotFoundException(
-                $"No attribute resolver registered for domain '{request.Domain}'.");
+        var resolver = principalResolver.GetResolver(request.Domain);
+        if (resolver is null)
+        {
+            throw new AggregateNotFoundException($"No attribute resolver registered for domain '{request.Domain}'.");
+        }
 
         var validation = resolver.Validate(request.Key, request.Value);
-
         if (!validation.IsValid)
+        {
             throw new AttributeValidationException(validation.Error!);
+        }
 
         var principal = await GetPrincipal(id);
+
         principal.SetAttribute(request.Domain, request.Key, request.Value);
+
         await principalRepository.SaveChangesAsync();
 
         return principal.ToResponse();
@@ -166,10 +174,11 @@ internal class PrincipalService(
 
     public async Task<ResolvedPrincipal> ResolveAsync(string provider, string externalId)
     {
-        var principal = await principalRepository.GetByIdentityAsync(provider, externalId)
-            ?? throw new AggregateNotFoundException(
-                $"No principal found for identity '{provider}:{externalId}'.");
-
+        var principal = await principalRepository.GetByIdentityAsync(provider, externalId);
+        if (principal is null)
+        {
+            throw new AggregateNotFoundException($"No principal found for identity '{provider}:{externalId}'.");
+        }
         return principalResolver.Resolve(principal);
     }
 
@@ -181,7 +190,11 @@ internal class PrincipalService(
 
     private async Task<Principal> GetPrincipal(Guid id)
     {
-        return await principalRepository.GetByIdAsync(id)
-            ?? throw new AggregateNotFoundException($"Principal {id} not found.");
+        var principal = await principalRepository.GetByIdAsync(id);
+        if (principal is null)
+        {
+            throw new AggregateNotFoundException($"Principal {id} not found.");
+        }
+        return principal;
     }
 }

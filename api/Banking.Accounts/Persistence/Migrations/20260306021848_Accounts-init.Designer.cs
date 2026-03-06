@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Banking.Accounts.Persistence.Migrations
 {
     [DbContext(typeof(AccountsDbContext))]
-    [Migration("20260305214623_InitialAccounts")]
-    partial class InitialAccounts
+    [Migration("20260306021848_Accounts-init")]
+    partial class Accountsinit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

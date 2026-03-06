@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Banking.Principals.Persistence.Migrations
 {
     [DbContext(typeof(PrincipalDbContext))]
-    [Migration("20260305214547_InitialPrincipals")]
-    partial class InitialPrincipals
+    [Migration("20260306021856_Principals-init")]
+    partial class Principalsinit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

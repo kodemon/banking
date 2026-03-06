@@ -2,6 +2,7 @@ using Banking.Accounts;
 using Banking.Api;
 using Banking.Api.Exceptions;
 using Banking.Principal;
+using Banking.Shared.Database;
 using Banking.Transactions;
 using Banking.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,13 +11,14 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 
 /*
  |--------------------------------------------------------------------------------
  | Authentication
  |--------------------------------------------------------------------------------
  */
+
+Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -57,10 +59,10 @@ builder.Services
         manager.FeatureProviders.Add(new InternalControllerFeatureProvider());
     });
 
-builder.Services.AddUsersModule();
 builder.Services.AddAccountsModule();
-builder.Services.AddPrincipalsModule();
+builder.Services.AddPrincipalsModule(builder.Configuration);
 builder.Services.AddTransactionsModule();
+builder.Services.AddUsersModule();
 
 /*
  |--------------------------------------------------------------------------------

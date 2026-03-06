@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Banking.Principals.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPrincipals : Migration
+    public partial class Principalsinit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

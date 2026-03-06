@@ -1,4 +1,5 @@
 using Banking.Accounts.Persistence;
+using Banking.Shared.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,13 +9,10 @@ public static class AccountsModule
 {
     public static IServiceCollection AddAccountsModule(this IServiceCollection services)
     {
-        var moduleDirectory = Path.GetDirectoryName(
-            typeof(AccountsModule).Assembly.Location)!;
-
-        var dbPath = Path.Combine(moduleDirectory, "banking-accounts.db");
-
         services.AddDbContext<AccountsDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}")
+            options.UseSqlite(SQLiteConnection.Load("accounts"), sqliteOptions =>
+                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            )
         );
 
         services.AddScoped<IAccountRepository, AccountRepository>();

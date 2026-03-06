@@ -1,3 +1,4 @@
+using Banking.Shared.Database;
 using Banking.Transactions.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,13 +9,10 @@ public static class TransactionsModule
 {
     public static IServiceCollection AddTransactionsModule(this IServiceCollection services)
     {
-        var moduleDirectory = Path.GetDirectoryName(
-            typeof(TransactionsModule).Assembly.Location)!;
-
-        var dbPath = Path.Combine(moduleDirectory, "banking-transactions.db");
-
         services.AddDbContext<TransactionsDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}")
+            options.UseSqlite(SQLiteConnection.Load("transactions"), sqliteOptions =>
+                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            )
         );
 
         services.AddScoped<ITransactionRepository, TransactionRepository>();

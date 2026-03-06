@@ -1,12 +1,14 @@
 using Banking.Users.DTO.Requests;
 using Banking.Users.DTO.Responses;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Banking.Users;
 
 [ApiController]
 [Route("api/[controller]")]
+[Tags("User")]
 [Authorize]
 internal class UsersController(UserService userService) : ControllerBase
 {
