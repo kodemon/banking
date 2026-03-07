@@ -1,6 +1,6 @@
 namespace Banking.Transactions;
 
-internal interface ITransactionRepository
+public interface ITransactionRepository
 {
     Task AddAsync(Transaction transaction);
 

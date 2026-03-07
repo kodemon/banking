@@ -2,9 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Accounts.Persistence;
 
-internal class AccountsDbContext : DbContext
+public class AccountsDbContext : DbContext
 {
-    public AccountsDbContext(DbContextOptions<AccountsDbContext> options) : base(options) { }
+    public AccountsDbContext(DbContextOptions<AccountsDbContext> options)
+        : base(options) { }
 
     internal DbSet<Account> Accounts => Set<Account>();
     internal DbSet<AccountHolder> PersonalAccountHolders => Set<AccountHolder>();

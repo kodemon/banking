@@ -12,15 +12,15 @@ internal class AccountRepository(AccountsDbContext context) : IAccountRepository
 
     public async Task<Account?> GetByIdAsync(Guid id)
     {
-        return await context.Accounts
-            .Include(a => a.AccountHolders)
+        return await context
+            .Accounts.Include(a => a.AccountHolders)
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<IEnumerable<Account>> GetAllByHolderAsync(Guid holderId)
     {
-        return await context.Accounts
-            .Include(a => a.AccountHolders)
+        return await context
+            .Accounts.Include(a => a.AccountHolders)
             .Where(a => a.AccountHolders.Any(h => h.HolderId == holderId))
             .ToListAsync();
     }

@@ -4,6 +4,7 @@ init_db_files() {
     local db_path=$(grep SQLITE_DB_PATH .env | cut -d'=' -f2 | tr -d '"' | tr -d "'")
     echo "Initializing database files at $db_path..."
     touch "$db_path/accounts.db"
+    touch "$db_path/events.db"
     touch "$db_path/principals.db"
     touch "$db_path/transactions.db"
     touch "$db_path/users.db"
@@ -36,6 +37,7 @@ run_migration() {
 }
 
 run_migration api/Banking.Accounts
+run_migration api/Banking.Events
 run_migration api/Banking.Principals
 run_migration api/Banking.Transactions
 run_migration api/Banking.Users

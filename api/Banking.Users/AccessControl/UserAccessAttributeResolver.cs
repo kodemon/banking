@@ -37,7 +37,7 @@ internal class UserAccessAttributeResolver : AccessAttributeResolver<UserAccessA
         {
             UserId = GetString(rawValues, "user_id"),
             Email = GetObject<EmailPermissions>(rawValues, "email"),
-            Address = GetObject<AddressPermissions>(rawValues, "address")
+            Address = GetObject<AddressPermissions>(rawValues, "address"),
         };
 
     /*
@@ -63,7 +63,8 @@ internal class UserAccessAttributeResolver : AccessAttributeResolver<UserAccessA
                 : TryValidateJson<AddressPermissions>(value),
 
             _ => AttributeValidationResult.Fail(
-                $"Unknown attribute key '{key}' in domain '{Domain}'.")
+                $"Unknown attribute key '{key}' in domain '{Domain}'."
+            ),
         };
     }
 
@@ -78,11 +79,13 @@ internal class UserAccessAttributeResolver : AccessAttributeResolver<UserAccessA
         if (value is not string raw)
         {
             return AttributeValidationResult.Fail(
-                        $"Expected '{typeof(T).Name}' or a JSON string representation.");
+                $"Expected '{typeof(T).Name}' or a JSON string representation."
+            );
         }
         return TryDeserialize<T>(raw, out _)
             ? AttributeValidationResult.Success()
             : AttributeValidationResult.Fail(
-                $"Value could not be deserialized as '{typeof(T).Name}'.");
+                $"Value could not be deserialized as '{typeof(T).Name}'."
+            );
     }
 }

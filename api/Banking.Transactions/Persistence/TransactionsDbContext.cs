@@ -13,9 +13,10 @@ namespace Banking.Transactions.Persistence;
  |
  */
 
-internal class TransactionsDbContext : DbContext
+public class TransactionsDbContext : DbContext
 {
-    public TransactionsDbContext(DbContextOptions<TransactionsDbContext> options) : base(options) { }
+    public TransactionsDbContext(DbContextOptions<TransactionsDbContext> options)
+        : base(options) { }
 
     internal DbSet<Transaction> Transactions => Set<Transaction>();
     internal DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();

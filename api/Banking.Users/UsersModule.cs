@@ -26,8 +26,10 @@ public static class UsersModule
     public static IServiceCollection AddUsersModule(this IServiceCollection services)
     {
         services.AddDbContext<UsersDbContext>(options =>
-            options.UseSqlite(SQLiteConnection.Load("users"), sqliteOptions =>
-                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseSqlite(
+                SQLiteConnection.Load("users"),
+                sqliteOptions =>
+                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
 

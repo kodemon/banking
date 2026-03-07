@@ -55,5 +55,5 @@ public enum EmailType
 {
     Primary,
     Work,
-    Personal
+    Personal,
 }

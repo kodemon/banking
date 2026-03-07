@@ -17,9 +17,10 @@ namespace Banking.Users.Persistence;
  |
  */
 
-internal class UsersDbContext : DbContext
+public class UsersDbContext : DbContext
 {
-    public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options) { }
+    public UsersDbContext(DbContextOptions<UsersDbContext> options)
+        : base(options) { }
 
     internal DbSet<User> Users => Set<User>();
     internal DbSet<UserEmail> UserEmails => Set<UserEmail>();

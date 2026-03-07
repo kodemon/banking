@@ -9,7 +9,7 @@ namespace Banking.Accounts;
  |--------------------------------------------------------------------------------
  */
 
-internal class Account
+public class Account
 {
     public Guid Id { get; init; }
 
@@ -23,6 +23,22 @@ internal class Account
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
     private Account() { }
+
+    /// <summary>Reconstitutes an Account from an AccountCreated event with a known Id.</summary>
+    internal static Account Reconstitute(
+        Guid id,
+        AccountType type,
+        Currency currency,
+        DateTime createdAt
+    ) =>
+        new()
+        {
+            Id = id,
+            Type = type,
+            Status = AccountStatus.Active,
+            Currency = currency,
+            CreatedAt = createdAt,
+        };
 
     public Account(AccountType type, Currency currency)
     {
@@ -75,7 +91,7 @@ internal class Account
             Id = Guid.NewGuid(),
             AccountId = Id,
             HolderId = holderId,
-            HolderType = holderType
+            HolderType = holderType,
         };
         _accountHolders.Add(holder);
         return holder;
@@ -83,7 +99,8 @@ internal class Account
 
     public void RemoveHolder(Guid holderId)
     {
-        var holder = _accountHolders.FirstOrDefault(h => h.Id == holderId)
+        var holder =
+            _accountHolders.FirstOrDefault(h => h.Id == holderId)
             ?? throw new AggregateNotFoundException($"Holder {holderId} not found on account {Id}");
         _accountHolders.Remove(holder);
     }
@@ -95,11 +112,11 @@ internal class Account
  |--------------------------------------------------------------------------------
  */
 
-internal class AccountHolder
+public class AccountHolder
 {
     public Guid Id { get; init; }
     public Guid AccountId { get; init; }
-    public Guid HolderId { get; init; }  // external reference — could be a User, Business, anything
+    public Guid HolderId { get; init; } // external reference — could be a User, Business, anything
     public AccountHolderType HolderType { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }
@@ -110,7 +127,7 @@ internal class AccountHolder
  |--------------------------------------------------------------------------------
  */
 
-internal enum AccountType
+public enum AccountType
 {
     Checking,
     Savings,
@@ -118,14 +135,14 @@ internal enum AccountType
     Investment,
 }
 
-internal enum AccountStatus
+public enum AccountStatus
 {
     Active,
     Frozen,
     Closed,
 }
 
-internal enum AccountHolderType
+public enum AccountHolderType
 {
     Primary,
     Beneficiary,

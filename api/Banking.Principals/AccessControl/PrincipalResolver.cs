@@ -1,6 +1,6 @@
 using Banking.Shared.AccessControl;
 
-namespace Banking.Principal.AccessControl;
+namespace Banking.Principals.AccessControl;
 
 /*
  |--------------------------------------------------------------------------------
@@ -27,8 +27,8 @@ internal class PrincipalResolver(IEnumerable<IAccessAttributeResolver> resolvers
 
     public ResolvedPrincipal Resolve(Principal principal)
     {
-        var identities = principal.Identities
-            .Select(i => new ResolvedIdentity(i.Provider, i.ExternalId))
+        var identities = principal
+            .Identities.Select(i => new ResolvedIdentity(i.Provider, i.ExternalId))
             .ToList()
             .AsReadOnly();
 

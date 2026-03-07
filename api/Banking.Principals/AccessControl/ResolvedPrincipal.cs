@@ -1,4 +1,4 @@
-namespace Banking.Principal.AccessControl;
+namespace Banking.Principals.AccessControl;
 
 /*
  |--------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 namespace Banking.Users;
 
-internal interface IUserRepository
+public interface IUserRepository
 {
     Task AddAsync(User user);
 

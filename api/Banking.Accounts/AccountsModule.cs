@@ -10,8 +10,10 @@ public static class AccountsModule
     public static IServiceCollection AddAccountsModule(this IServiceCollection services)
     {
         services.AddDbContext<AccountsDbContext>(options =>
-            options.UseSqlite(SQLiteConnection.Load("accounts"), sqliteOptions =>
-                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseSqlite(
+                SQLiteConnection.Load("accounts"),
+                sqliteOptions =>
+                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
 

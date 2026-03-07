@@ -17,6 +17,7 @@ public record Name
     public string Full => $"{Given} {Family}";
 
     public Name WithGiven(string given) => new(Family, given);
+
     public Name WithFamily(string family) => new(family, Given);
 
     private static void Validate(string family, string given)

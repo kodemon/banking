@@ -38,7 +38,7 @@ export class CreatePrincipalController extends Controller<{
   }
 
   async #getPrincipal() {
-    const { error, data } = await api.GET("/api/Principal/me");
+    const { error, data } = await api.GET("/api/Principals/me");
     if (error) {
       console.log(error);
       return;

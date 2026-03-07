@@ -15,7 +15,7 @@ namespace Banking.Transactions;
  |
  */
 
-internal class Transaction
+public class Transaction
 {
     public Guid Id { get; init; }
 
@@ -39,11 +39,28 @@ internal class Transaction
         Description = null!;
     }
 
-    private Transaction(
+    /// <summary>Reconstitutes a Transaction from a domain event with a known Id.</summary>
+    internal static Transaction Reconstitute(
+        Guid id,
         TransactionType type,
         string description,
         long amount,
-        Currency currency)
+        Currency currency,
+        DateTime createdAt
+    ) =>
+        new()
+        {
+            Id = id,
+            Type = type,
+            Status = TransactionStatus.Pending,
+            Description = description,
+            Amount = amount,
+            Currency = currency,
+            ReferenceNumber = GenerateReferenceNumber(),
+            CreatedAt = createdAt,
+        };
+
+    private Transaction(TransactionType type, string description, long amount, Currency currency)
     {
         Id = Guid.NewGuid();
         Type = type;
@@ -64,10 +81,13 @@ internal class Transaction
         Guid destinationParticipantId,
         long amount,
         Currency currency,
-        string description)
+        string description
+    )
     {
         var transaction = new Transaction(TransactionType.Deposit, description, amount, currency);
-        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, destinationParticipantId));
+        transaction._journalEntries.Add(
+            JournalEntry.Debit(transaction.Id, destinationParticipantId)
+        );
         return transaction;
     }
 
@@ -75,9 +95,15 @@ internal class Transaction
         Guid sourceParticipantId,
         long amount,
         Currency currency,
-        string description)
+        string description
+    )
     {
-        var transaction = new Transaction(TransactionType.Withdrawal, description, amount, currency);
+        var transaction = new Transaction(
+            TransactionType.Withdrawal,
+            description,
+            amount,
+            currency
+        );
         transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, sourceParticipantId));
         return transaction;
     }
@@ -87,14 +113,19 @@ internal class Transaction
         Guid destinationParticipantId,
         long amount,
         Currency currency,
-        string description)
+        string description
+    )
     {
         if (sourceParticipantId == destinationParticipantId)
-            throw new InvalidAggregateOperationException("Source and destination participants must be different");
+            throw new InvalidAggregateOperationException(
+                "Source and destination participants must be different"
+            );
 
         var transaction = new Transaction(TransactionType.Transfer, description, amount, currency);
         transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, sourceParticipantId));
-        transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, destinationParticipantId));
+        transaction._journalEntries.Add(
+            JournalEntry.Debit(transaction.Id, destinationParticipantId)
+        );
         return transaction;
     }
 
@@ -102,7 +133,8 @@ internal class Transaction
         Guid participantId,
         long amount,
         Currency currency,
-        string description)
+        string description
+    )
     {
         var transaction = new Transaction(TransactionType.Fee, description, amount, currency);
         transaction._journalEntries.Add(JournalEntry.Credit(transaction.Id, participantId));
@@ -113,7 +145,8 @@ internal class Transaction
         Guid participantId,
         long amount,
         Currency currency,
-        string description)
+        string description
+    )
     {
         var transaction = new Transaction(TransactionType.Interest, description, amount, currency);
         transaction._journalEntries.Add(JournalEntry.Debit(transaction.Id, participantId));
@@ -122,28 +155,52 @@ internal class Transaction
 
     /*
      |--------------------------------------------------------------------------------
-     | Status Transitions
+     | Journal Entry Helpers
      |--------------------------------------------------------------------------------
+     |
+     | Used by TransactionEventHandlers to add journal entries when reconstituting
+     | a transaction from an event. The factory methods (CreateDeposit, etc.) are
+     | no longer the primary creation path — events are. These methods expose the
+     | same journal entry construction without duplicating factory logic.
+     |
      */
+
+    internal void AddCreditEntry(Guid participantId) =>
+        _journalEntries.Add(JournalEntry.Credit(Id, participantId));
+
+    internal void AddDebitEntry(Guid participantId) =>
+        _journalEntries.Add(JournalEntry.Debit(Id, participantId));
+
+    /*
+ |--------------------------------------------------------------------------------
+ | Status Transitions
+ |--------------------------------------------------------------------------------
+ */
 
     public void Complete()
     {
         if (Status != TransactionStatus.Pending)
-            throw new InvalidAggregateOperationException($"Cannot complete a transaction with status {Status}");
+            throw new InvalidAggregateOperationException(
+                $"Cannot complete a transaction with status {Status}"
+            );
         Status = TransactionStatus.Completed;
     }
 
     public void Fail()
     {
         if (Status != TransactionStatus.Pending)
-            throw new InvalidAggregateOperationException($"Cannot fail a transaction with status {Status}");
+            throw new InvalidAggregateOperationException(
+                $"Cannot fail a transaction with status {Status}"
+            );
         Status = TransactionStatus.Failed;
     }
 
     public void Reverse()
     {
         if (Status != TransactionStatus.Completed)
-            throw new InvalidAggregateOperationException("Only completed transactions can be reversed");
+            throw new InvalidAggregateOperationException(
+                "Only completed transactions can be reversed"
+            );
         Status = TransactionStatus.Reversed;
     }
 
@@ -170,7 +227,7 @@ internal class Transaction
  |
  */
 
-internal class JournalEntry
+public class JournalEntry
 {
     public Guid Id { get; init; }
     public Guid TransactionId { get; init; }
@@ -184,21 +241,23 @@ internal class JournalEntry
 
     private JournalEntry() { }
 
-    internal static JournalEntry Credit(Guid transactionId, Guid participantId) => new()
-    {
-        Id = Guid.NewGuid(),
-        TransactionId = transactionId,
-        ParticipantId = participantId,
-        Type = JournalEntryType.Credit
-    };
+    internal static JournalEntry Credit(Guid transactionId, Guid participantId) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            TransactionId = transactionId,
+            ParticipantId = participantId,
+            Type = JournalEntryType.Credit,
+        };
 
-    internal static JournalEntry Debit(Guid transactionId, Guid participantId) => new()
-    {
-        Id = Guid.NewGuid(),
-        TransactionId = transactionId,
-        ParticipantId = participantId,
-        Type = JournalEntryType.Debit
-    };
+    internal static JournalEntry Debit(Guid transactionId, Guid participantId) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            TransactionId = transactionId,
+            ParticipantId = participantId,
+            Type = JournalEntryType.Debit,
+        };
 }
 
 /*
@@ -207,6 +266,25 @@ internal class JournalEntry
  |--------------------------------------------------------------------------------
  */
 
-internal enum TransactionType { Deposit, Withdrawal, Transfer, Fee, Interest }
-internal enum TransactionStatus { Pending, Failed, Reversed, Completed }
-internal enum JournalEntryType { Credit, Debit }
+public enum TransactionType
+{
+    Deposit,
+    Withdrawal,
+    Transfer,
+    Fee,
+    Interest,
+}
+
+public enum TransactionStatus
+{
+    Pending,
+    Failed,
+    Reversed,
+    Completed,
+}
+
+public enum JournalEntryType
+{
+    Credit,
+    Debit,
+}

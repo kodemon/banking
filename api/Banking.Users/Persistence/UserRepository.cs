@@ -12,24 +12,22 @@ internal class UserRepository(UsersDbContext context) : IUserRepository
 
     public async Task<User?> GetByIdAsync(Guid id)
     {
-        return await context.Users
-            .Include(u => u.Emails)
+        return await context
+            .Users.Include(u => u.Emails)
             .Include(u => u.Addresses)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<IEnumerable<User>> GetAllAsync()
     {
-        return await context.Users
-            .Include(u => u.Emails)
-            .Include(u => u.Addresses)
-            .ToListAsync();
+        return await context.Users.Include(u => u.Emails).Include(u => u.Addresses).ToListAsync();
     }
 
     public async Task<bool> ExistsByEmailAsync(string emailAddress)
     {
-        return await context.Users
-            .AnyAsync(u => u.Emails.Any(e => e.Email.Address == emailAddress));
+        return await context.Users.AnyAsync(u =>
+            u.Emails.Any(e => e.Email.Address == emailAddress)
+        );
     }
 
     public Task DeleteAsync(User user)

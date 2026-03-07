@@ -7,8 +7,8 @@ internal class BalanceService(TransactionsDbContext context) : IBalanceService
 {
     public async Task<long> GetBalanceAsync(Guid participantId)
     {
-        var entries = await context.JournalEntries
-            .Where(je => je.ParticipantId == participantId)
+        var entries = await context
+            .JournalEntries.Where(je => je.ParticipantId == participantId)
             .Join(
                 context.Transactions,
                 je => je.TransactionId,
@@ -17,8 +17,6 @@ internal class BalanceService(TransactionsDbContext context) : IBalanceService
             )
             .ToListAsync();
 
-        return entries.Sum(e => e.Type == JournalEntryType.Debit
-            ? e.Amount
-            : -e.Amount);
+        return entries.Sum(e => e.Type == JournalEntryType.Debit ? e.Amount : -e.Amount);
     }
 }

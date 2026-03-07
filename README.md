@@ -6,6 +6,14 @@
 SQLITE_DB_CONNECTION=Data Source=data/dev.db
 ```
 
+## Format
+
+From the `/api` folder run:
+
+```sh
+dotnet csharpier format .
+```
+
 ## Migrations
 
 ### Create Migration

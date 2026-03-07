@@ -9,7 +9,7 @@ namespace Banking.Users;
  |--------------------------------------------------------------------------------
  */
 
-internal class User
+public class User
 {
     public Guid Id { get; init; }
 
@@ -36,6 +36,20 @@ internal class User
         DateOfBirth = dob;
         CreatedAt = DateTime.UtcNow;
     }
+
+    /// <summary>
+    /// Reconstitutes a User with a known Id. Used exclusively by
+    /// UserEventHandlers when projecting a UserCreated event into a read
+    /// record — the Id was minted by Banking.Api and must be preserved.
+    /// </summary>
+    internal static User Reconstitute(Guid id, Name name, DateTime dob, DateTime createdAt) =>
+        new()
+        {
+            Id = id,
+            Name = name,
+            DateOfBirth = dob,
+            CreatedAt = createdAt,
+        };
 
     /*
      |--------------------------------------------------------------------------------
@@ -74,7 +88,7 @@ internal class User
         {
             Id = Guid.NewGuid(),
             UserId = Id,
-            Email = email
+            Email = email,
         };
         _emails.Add(userEmail);
         return userEmail;
@@ -82,7 +96,8 @@ internal class User
 
     public void RemoveEmail(Guid emailId)
     {
-        var email = _emails.FirstOrDefault(e => e.Id == emailId)
+        var email =
+            _emails.FirstOrDefault(e => e.Id == emailId)
             ?? throw new AggregateDeletedException($"Email {emailId} not found for user {Id}");
         _emails.Remove(email);
     }
@@ -99,7 +114,7 @@ internal class User
         {
             Id = Guid.NewGuid(),
             UserId = Id,
-            Address = address
+            Address = address,
         };
         _addresses.Add(userAddress);
         return userAddress;
@@ -107,7 +122,8 @@ internal class User
 
     public void RemoveAddress(Guid addressId)
     {
-        var address = _addresses.FirstOrDefault(a => a.Id == addressId)
+        var address =
+            _addresses.FirstOrDefault(a => a.Id == addressId)
             ?? throw new AggregateDeletedException($"Address {addressId} not found for user {Id}");
         _addresses.Remove(address);
     }
@@ -119,7 +135,7 @@ internal class User
  |--------------------------------------------------------------------------------
  */
 
-internal class UserAddress
+public class UserAddress
 {
     public Guid Id { get; init; }
     public Guid UserId { get; init; }
@@ -129,7 +145,7 @@ internal class UserAddress
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }
 
-internal class UserEmail
+public class UserEmail
 {
     public Guid Id { get; init; }
     public Guid UserId { get; init; }

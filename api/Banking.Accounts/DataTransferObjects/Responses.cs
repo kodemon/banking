@@ -6,7 +6,8 @@ public record AccountResponse
     public required string Type { get; init; }
     public required string Status { get; init; }
     public required string Currency { get; init; }
-    public ICollection<AccountHolderResponse> Holders { get; init; } = new List<AccountHolderResponse>();
+    public ICollection<AccountHolderResponse> Holders { get; init; } =
+        new List<AccountHolderResponse>();
     public required long Balance { get; init; }
     public required DateTime CreatedAt { get; init; }
 }

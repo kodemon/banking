@@ -1,6 +1,6 @@
 namespace Banking.Accounts;
 
-internal interface IAccountRepository
+public interface IAccountRepository
 {
     Task AddAsync(Account account);
 

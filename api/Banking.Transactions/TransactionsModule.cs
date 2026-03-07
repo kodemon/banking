@@ -10,8 +10,10 @@ public static class TransactionsModule
     public static IServiceCollection AddTransactionsModule(this IServiceCollection services)
     {
         services.AddDbContext<TransactionsDbContext>(options =>
-            options.UseSqlite(SQLiteConnection.Load("transactions"), sqliteOptions =>
-                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseSqlite(
+                SQLiteConnection.Load("transactions"),
+                sqliteOptions =>
+                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
 
