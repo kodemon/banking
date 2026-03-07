@@ -1,4 +1,5 @@
 using Banking.Principals.AccessControl;
+using Banking.Users.AccessControl;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ internal class PrincipalsController(IPrincipalContext principalContext) : Contro
         {
             return NotFound();
         }
+
         return Ok(PrincipalResponse.From(principalContext.Principal));
     }
 }
@@ -27,7 +29,7 @@ internal record PrincipalResponse
 
     public required IReadOnlyCollection<ResolvedIdentity> Identities { get; init; }
     public required IReadOnlyCollection<string> Roles { get; init; }
-    public required IReadOnlyDictionary<string, object> Attributes { get; init; }
+    public required PrincipalAttributesResponse Attributes { get; init; }
 
     public static PrincipalResponse From(ResolvedPrincipal principal) =>
         new()
@@ -35,6 +37,23 @@ internal record PrincipalResponse
             Id = principal.Id,
             Identities = principal.Identities,
             Roles = principal.Roles,
-            Attributes = principal.Attributes,
+            Attributes = PrincipalAttributesResponse.From(principal),
         };
+}
+
+internal record PrincipalAttributesResponse
+{
+    public UserAccessAttributes? User { get; init; }
+
+    public static PrincipalAttributesResponse From(ResolvedPrincipal principal) =>
+        new() { User = principal.GetAttribute<UserAccessAttributes>("user") };
+}
+
+internal static class ResolvedPrincipalExtensions
+{
+    public static T? GetAttribute<T>(this ResolvedPrincipal principal, string domain)
+        where T : class
+    {
+        return principal.Attributes.TryGetValue(domain, out var value) ? value as T : null;
+    }
 }

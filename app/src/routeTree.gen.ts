@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as CallbackRouteImport } from './routes/callback'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
-import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthAuthRouteImport } from './routes/_auth/_auth'
+import { Route as AuthAuthIndexRouteImport } from './routes/_auth/_auth/index'
+import { Route as AuthAuthTransactionsRouteImport } from './routes/_auth/_auth/transactions'
+import { Route as AuthAuthAccountsRouteImport } from './routes/_auth/_auth/accounts'
 
 const CallbackRoute = CallbackRouteImport.update({
   id: '/callback',
@@ -22,32 +25,60 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
+const AuthAuthRoute = AuthAuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthAuthIndexRoute = AuthAuthIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthRouteRoute,
+  getParentRoute: () => AuthAuthRoute,
+} as any)
+const AuthAuthTransactionsRoute = AuthAuthTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AuthAuthRoute,
+} as any)
+const AuthAuthAccountsRoute = AuthAuthAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AuthAuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthIndexRoute
+  '/': typeof AuthAuthIndexRoute
   '/callback': typeof CallbackRoute
+  '/accounts': typeof AuthAuthAccountsRoute
+  '/transactions': typeof AuthAuthTransactionsRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AuthAuthIndexRoute
   '/callback': typeof CallbackRoute
-  '/': typeof AuthIndexRoute
+  '/accounts': typeof AuthAuthAccountsRoute
+  '/transactions': typeof AuthAuthTransactionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
   '/callback': typeof CallbackRoute
-  '/_auth/': typeof AuthIndexRoute
+  '/_auth/_auth': typeof AuthAuthRouteWithChildren
+  '/_auth/_auth/accounts': typeof AuthAuthAccountsRoute
+  '/_auth/_auth/transactions': typeof AuthAuthTransactionsRoute
+  '/_auth/_auth/': typeof AuthAuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/callback'
+  fullPaths: '/' | '/callback' | '/accounts' | '/transactions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/callback' | '/'
-  id: '__root__' | '/_auth' | '/callback' | '/_auth/'
+  to: '/' | '/callback' | '/accounts' | '/transactions'
+  id:
+    | '__root__'
+    | '/_auth'
+    | '/callback'
+    | '/_auth/_auth'
+    | '/_auth/_auth/accounts'
+    | '/_auth/_auth/transactions'
+    | '/_auth/_auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -71,22 +102,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/': {
-      id: '/_auth/'
+    '/_auth/_auth': {
+      id: '/_auth/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthAuthRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/_auth/': {
+      id: '/_auth/_auth/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof AuthAuthIndexRouteImport
+      parentRoute: typeof AuthAuthRoute
+    }
+    '/_auth/_auth/transactions': {
+      id: '/_auth/_auth/transactions'
+      path: '/transactions'
+      fullPath: '/transactions'
+      preLoaderRoute: typeof AuthAuthTransactionsRouteImport
+      parentRoute: typeof AuthAuthRoute
+    }
+    '/_auth/_auth/accounts': {
+      id: '/_auth/_auth/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthAuthAccountsRouteImport
+      parentRoute: typeof AuthAuthRoute
     }
   }
 }
 
+interface AuthAuthRouteChildren {
+  AuthAuthAccountsRoute: typeof AuthAuthAccountsRoute
+  AuthAuthTransactionsRoute: typeof AuthAuthTransactionsRoute
+  AuthAuthIndexRoute: typeof AuthAuthIndexRoute
+}
+
+const AuthAuthRouteChildren: AuthAuthRouteChildren = {
+  AuthAuthAccountsRoute: AuthAuthAccountsRoute,
+  AuthAuthTransactionsRoute: AuthAuthTransactionsRoute,
+  AuthAuthIndexRoute: AuthAuthIndexRoute,
+}
+
+const AuthAuthRouteWithChildren = AuthAuthRoute._addFileChildren(
+  AuthAuthRouteChildren,
+)
+
 interface AuthRouteRouteChildren {
-  AuthIndexRoute: typeof AuthIndexRoute
+  AuthAuthRoute: typeof AuthAuthRouteWithChildren
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthIndexRoute: AuthIndexRoute,
+  AuthAuthRoute: AuthAuthRouteWithChildren,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

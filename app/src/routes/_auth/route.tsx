@@ -4,8 +4,8 @@ import { AppController } from "@/domains/app/app.controller";
 import { CreatePrincipal } from "@/domains/principal/components/CreatePrincipal";
 import { makeControllerComponent } from "@/lib/controller";
 
-const AppLayout = makeControllerComponent(AppController, ({ hasPrincipal }) => {
-  if (hasPrincipal === false) {
+const AppLayout = makeControllerComponent(AppController, ({ hasUser }) => {
+  if (hasUser === false) {
     return <CreatePrincipal />;
   }
   return (

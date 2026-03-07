@@ -2,26 +2,6 @@ using Banking.Shared.AccessControl;
 
 namespace Banking.Users.AccessControl;
 
-/*
- |--------------------------------------------------------------------------------
- | UserAccessAttributeResolver
- |--------------------------------------------------------------------------------
- |
- | Owns both directions of user domain attribute management:
- |
- |   Resolve  — builds a UserAccessAttributes instance from raw stored values.
- |              Missing keys fall back to record defaults (most restrictive).
- |
- |   Validate — ensures a proposed key is known and the value is the correct
- |              shape for that key before Banking.Principal persists it.
- |
- | Known keys:
- |   user_id   →  string
- |   email     →  EmailPermissions  (JSON)
- |   address   →  AddressPermissions (JSON)
- |
- */
-
 internal class UserAccessAttributeResolver : AccessAttributeResolver<UserAccessAttributes>
 {
     public override string Domain => "user";
@@ -35,7 +15,7 @@ internal class UserAccessAttributeResolver : AccessAttributeResolver<UserAccessA
     public override UserAccessAttributes Resolve(IReadOnlyDictionary<string, string> rawValues) =>
         new()
         {
-            UserId = GetString(rawValues, "user_id"),
+            UserId = GetString(rawValues, "user_id") is { Length: > 0 } id ? id : null,
             Email = GetObject<EmailPermissions>(rawValues, "email"),
             Address = GetObject<AddressPermissions>(rawValues, "address"),
         };
@@ -50,9 +30,9 @@ internal class UserAccessAttributeResolver : AccessAttributeResolver<UserAccessA
     {
         return key switch
         {
-            "user_id" => value is string
+            "user_id" => value is null or string
                 ? AttributeValidationResult.Success()
-                : AttributeValidationResult.Fail($"'user_id' must be a string."),
+                : AttributeValidationResult.Fail($"'user_id' must be a string or null."),
 
             "email" => value is EmailPermissions
                 ? AttributeValidationResult.Success()
