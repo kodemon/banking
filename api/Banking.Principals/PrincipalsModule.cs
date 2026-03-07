@@ -1,5 +1,7 @@
-﻿using Banking.Principal.AccessControl;
-using Banking.Principal.Persistence;
+﻿using Banking.AtomicFlow;
+using Banking.Principals.AccessControl;
+using Banking.Principals.Database;
+using Banking.Principals.Repositories;
 using Banking.Shared.AccessControl;
 using Banking.Shared.Database;
 using Microsoft.AspNetCore.Authentication;
@@ -8,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Zitadel.Credentials;
 
-namespace Banking.Principal;
+namespace Banking.Principals;
 
 /*
  |--------------------------------------------------------------------------------
@@ -29,16 +31,27 @@ namespace Banking.Principal;
 
 public static class PrincipalsModule
 {
-    public static IServiceCollection AddPrincipalsModule(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddPrincipalsModule(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         services.AddDbContext<PrincipalDbContext>(options =>
-            options.UseSqlite(SQLiteConnection.Load("principals"), sqliteOptions =>
-                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseSqlite(
+                SQLiteConnection.Load("principals"),
+                sqliteOptions =>
+                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
 
         services.AddScoped<IPrincipalRepository, PrincipalRepository>();
-        services.AddScoped<PrincipalService>();
+        services.AddScoped<IPrincipalIdentityRepository, PrincipalIdentityRepository>();
+
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(PrincipalsModule).Assembly)
+        );
+
+        services.AddRollbackRegistrations(typeof(PrincipalsModule).Assembly);
 
         /*
          |--------------------------------------------------------------------------------
@@ -53,11 +66,17 @@ public static class PrincipalsModule
         services.AddSingleton(serviceAccount);
         services
             .AddHttpClient<ZitadelMetadataService>(client =>
-                {
-                    client.BaseAddress = new Uri(authority);
-                }
-            )
-            .AddTypedClient((http, sp) => new ZitadelMetadataService(http, sp.GetRequiredService<ServiceAccount>(), authority));
+            {
+                client.BaseAddress = new Uri(authority);
+            })
+            .AddTypedClient(
+                (http, sp) =>
+                    new ZitadelMetadataService(
+                        http,
+                        sp.GetRequiredService<ServiceAccount>(),
+                        authority
+                    )
+            );
 
         /*
          |--------------------------------------------------------------------------------
@@ -75,6 +94,7 @@ public static class PrincipalsModule
             return new PrincipalResolver(resolvers);
         });
 
+        services.AddScoped<PrincipalProvisioner>();
         services.AddScoped<PrincipalContext>();
         services.AddScoped<IPrincipalContext>(sp => sp.GetRequiredService<PrincipalContext>());
 

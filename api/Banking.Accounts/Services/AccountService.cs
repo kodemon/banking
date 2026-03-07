@@ -1,91 +1,121 @@
-using Banking.Accounts.DTO.Requests;
-using Banking.Accounts.DTO.Responses;
+using Banking.Accounts.Enums;
+using Banking.Accounts.Interfaces;
+using Banking.Accounts.Repositories.Resources;
 using Banking.Shared.Exceptions;
 using Banking.Shared.ValueObjects;
-using Banking.Transactions;
 
 namespace Banking.Accounts;
 
-internal class AccountService(IAccountRepository accountRepository, IBalanceService balanceService)
+internal class AccountService(IAccountRepository accountRepository)
 {
     /*
      |--------------------------------------------------------------------------------
-     | Account
+     | Create
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<AccountResponse> CreateAccountAsync(CreateAccountRequest request)
+    public async Task<Account> CreateAccountAsync(
+        AccountType type,
+        Guid holderId,
+        AccountHolderType holderType,
+        string currencyCode
+    )
     {
-        var account = new Account(
-            request.Type,
-            Currency.FromCode(request.CurrencyCode)
-        );
+        var account = new Account(type, Currency.FromCode(currencyCode));
 
-        account.AddHolder(request.HolderId, request.HolderType);
+        account.AddHolder(holderId, holderType);
 
         await accountRepository.AddAsync(account);
         await accountRepository.SaveChangesAsync();
 
-        return account.ToResponse(0);
-    }
-
-    public async Task<AccountResponse> GetAccountByIdAsync(Guid accountId)
-    {
-        var account = await GetAccount(accountId);
-        var balance = await balanceService.GetBalanceAsync(accountId);
-        return account.ToResponse(balance);
-    }
-
-    public async Task<IEnumerable<AccountResponse>> GetAccountsByHolderAsync(Guid holderId)
-    {
-        var accounts = await accountRepository.GetAllByHolderAsync(holderId);
-        return await ToResponsesAsync(accounts);
-    }
-
-    public async Task<AccountResponse> FreezeAccountAsync(Guid accountId)
-    {
-        var account = await GetAccount(accountId);
-        account.Freeze();
-        await accountRepository.SaveChangesAsync();
-        var balance = await balanceService.GetBalanceAsync(accountId);
-        return account.ToResponse(balance);
-    }
-
-    public async Task<AccountResponse> UnfreezeAccountAsync(Guid accountId)
-    {
-        var account = await GetAccount(accountId);
-        account.Unfreeze();
-        await accountRepository.SaveChangesAsync();
-        var balance = await balanceService.GetBalanceAsync(accountId);
-        return account.ToResponse(balance);
-    }
-
-    public async Task CloseAccountAsync(Guid accountId)
-    {
-        var account = await GetAccount(accountId);
-        account.Close();
-        await accountRepository.SaveChangesAsync();
+        return account;
     }
 
     /*
      |--------------------------------------------------------------------------------
-     | Personal Holders
+     | Read
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<AccountHolderResponse> AddAccountHolderAsync(Guid accountId, AddAccountHolderRequest request)
+    public Task<Account> GetAccountByIdAsync(Guid accountId)
     {
-        var account = await GetAccount(accountId);
-        var holder = account.AddHolder(request.HolderId, request.HolderType);
-        await accountRepository.SaveChangesAsync();
-        return holder.ToResponse();
+        return GetAccount(accountId);
     }
 
-    public async Task RemovePersonalHolderAsync(Guid accountId, Guid holderId)
+    public Task<IEnumerable<Account>> GetAccountsByHolderAsync(Guid holderId)
+    {
+        return accountRepository.GetAllByHolderIdAsync(holderId);
+    }
+
+    /*
+     |--------------------------------------------------------------------------------
+     | Update
+     |--------------------------------------------------------------------------------
+     */
+
+    public async Task<Account> AddAccountHolderAsync(
+        Guid accountId,
+        Guid holderId,
+        AccountHolderType holderType
+    )
     {
         var account = await GetAccount(accountId);
-        account.RemoveHolder(holderId);
+
+        account.AddHolder(holderId, holderType);
+
         await accountRepository.SaveChangesAsync();
+
+        return account;
+    }
+
+    public async Task<Account> UnfreezeAccountIdAsync(Guid accountId)
+    {
+        var account = await GetAccount(accountId);
+
+        account.Unfreeze();
+
+        await accountRepository.SaveChangesAsync();
+
+        return account;
+    }
+
+    /*
+     |--------------------------------------------------------------------------------
+     | Delete
+     |--------------------------------------------------------------------------------
+     */
+
+    public async Task<Account> RemovePersonalHolderAsync(Guid accountId, Guid holderId)
+    {
+        var account = await GetAccount(accountId);
+
+        account.RemoveHolder(holderId);
+
+        await accountRepository.SaveChangesAsync();
+
+        return account;
+    }
+
+    public async Task<Account> FreezeAccountIdAsync(Guid accountId)
+    {
+        var account = await GetAccount(accountId);
+
+        account.Freeze();
+
+        await accountRepository.SaveChangesAsync();
+
+        return account;
+    }
+
+    public async Task<Account> CloseAccountIdAsync(Guid accountId)
+    {
+        var account = await GetAccount(accountId);
+
+        account.Close();
+
+        await accountRepository.SaveChangesAsync();
+
+        return account;
     }
 
     /*
@@ -98,18 +128,9 @@ internal class AccountService(IAccountRepository accountRepository, IBalanceServ
     {
         var account = await accountRepository.GetByIdAsync(accountId);
         if (account is null)
-            throw new AggregateNotFoundException($"Account {accountId} not found");
-        return account;
-    }
-
-    private async Task<IEnumerable<AccountResponse>> ToResponsesAsync(IEnumerable<Account> accounts)
-    {
-        var responses = new List<AccountResponse>();
-        foreach (var account in accounts)
         {
-            var balance = await balanceService.GetBalanceAsync(account.Id);
-            responses.Add(account.ToResponse(balance));
+            throw new ResourceNotFoundException($"Account {accountId} not found");
         }
-        return responses;
+        return account;
     }
 }

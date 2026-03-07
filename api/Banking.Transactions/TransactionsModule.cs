@@ -1,5 +1,6 @@
 using Banking.Shared.Database;
-using Banking.Transactions.Persistence;
+using Banking.Transactions.Database;
+using Banking.Transactions.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,8 +11,10 @@ public static class TransactionsModule
     public static IServiceCollection AddTransactionsModule(this IServiceCollection services)
     {
         services.AddDbContext<TransactionsDbContext>(options =>
-            options.UseSqlite(SQLiteConnection.Load("transactions"), sqliteOptions =>
-                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseSqlite(
+                SQLiteConnection.Load("transactions"),
+                sqliteOptions =>
+                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
 

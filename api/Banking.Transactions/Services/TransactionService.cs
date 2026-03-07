@@ -1,7 +1,7 @@
 using Banking.Shared.Exceptions;
 using Banking.Shared.ValueObjects;
-using Banking.Transactions.DTO.Requests;
-using Banking.Transactions.DTO.Responses;
+using Banking.Transactions.Interfaces;
+using Banking.Transactions.Repositories.Resources;
 
 namespace Banking.Transactions;
 
@@ -13,50 +13,66 @@ internal class TransactionService(ITransactionRepository transactionRepository)
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<TransactionResponse> CreateDepositAsync(CreateDepositRequest request)
+    public async Task<Transaction> CreateDepositAsync(
+        Guid destinationParticipantId,
+        long amount,
+        Currency currency,
+        string description
+    )
     {
         var transaction = Transaction.CreateDeposit(
-            request.DestinationParticipantId,
-            request.Amount,
-            Currency.FromCode(request.CurrencyCode),
-            request.Description
+            destinationParticipantId,
+            amount,
+            currency,
+            description
         );
 
         await transactionRepository.AddAsync(transaction);
         await transactionRepository.SaveChangesAsync();
 
-        return transaction.ToResponse();
+        return transaction;
     }
 
-    public async Task<TransactionResponse> CreateWithdrawalAsync(CreateWithdrawalRequest request)
+    public async Task<Transaction> CreateWithdrawalAsync(
+        Guid participantId,
+        long amount,
+        Currency currency,
+        string description
+    )
     {
         var transaction = Transaction.CreateWithdrawal(
-            request.SourceParticipantId,
-            request.Amount,
-            Currency.FromCode(request.CurrencyCode),
-            request.Description
+            participantId,
+            amount,
+            currency,
+            description
         );
 
         await transactionRepository.AddAsync(transaction);
         await transactionRepository.SaveChangesAsync();
 
-        return transaction.ToResponse();
+        return transaction;
     }
 
-    public async Task<TransactionResponse> CreateTransferAsync(CreateTransferRequest request)
+    public async Task<Transaction> CreateTransferAsync(
+        Guid fromParticipantId,
+        Guid toParticipantId,
+        long amount,
+        Currency currency,
+        string description
+    )
     {
         var transaction = Transaction.CreateTransfer(
-            request.SourceParticipantId,
-            request.SourceParticipantId,
-            request.Amount,
-            Currency.FromCode(request.CurrencyCode),
-            request.Description
+            fromParticipantId,
+            toParticipantId,
+            amount,
+            currency,
+            description
         );
 
         await transactionRepository.AddAsync(transaction);
         await transactionRepository.SaveChangesAsync();
 
-        return transaction.ToResponse();
+        return transaction;
     }
 
     /*
@@ -65,16 +81,14 @@ internal class TransactionService(ITransactionRepository transactionRepository)
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<TransactionResponse> GetTransactionByIdAsync(Guid transactionId)
+    public async Task<Transaction> GetTransactionByIdAsync(Guid transactionId)
     {
-        var transaction = await GetTransaction(transactionId);
-        return transaction.ToResponse();
+        return await GetTransaction(transactionId);
     }
 
-    public async Task<IEnumerable<TransactionResponse>> GetTransactionsByAccountAsync(Guid accountId)
+    public async Task<IEnumerable<Transaction>> GetTransactionsByAccountAsync(Guid accountId)
     {
-        var transactions = await transactionRepository.GetAllByParticipantAsync(accountId);
-        return transactions.Select(t => t.ToResponse());
+        return await transactionRepository.GetAllByParticipantAsync(accountId);
     }
 
     /*
@@ -83,28 +97,28 @@ internal class TransactionService(ITransactionRepository transactionRepository)
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<TransactionResponse> CompleteTransactionAsync(Guid transactionId)
+    public async Task<Transaction> CompleteTransactionAsync(Guid transactionId)
     {
         var transaction = await GetTransaction(transactionId);
         transaction.Complete();
         await transactionRepository.SaveChangesAsync();
-        return transaction.ToResponse();
+        return transaction;
     }
 
-    public async Task<TransactionResponse> FailTransactionAsync(Guid transactionId)
+    public async Task<Transaction> FailTransactionAsync(Guid transactionId)
     {
         var transaction = await GetTransaction(transactionId);
         transaction.Fail();
         await transactionRepository.SaveChangesAsync();
-        return transaction.ToResponse();
+        return transaction;
     }
 
-    public async Task<TransactionResponse> ReverseTransactionAsync(Guid transactionId)
+    public async Task<Transaction> ReverseTransactionAsync(Guid transactionId)
     {
         var transaction = await GetTransaction(transactionId);
         transaction.Reverse();
         await transactionRepository.SaveChangesAsync();
-        return transaction.ToResponse();
+        return transaction;
     }
 
     /*
@@ -117,7 +131,9 @@ internal class TransactionService(ITransactionRepository transactionRepository)
     {
         var transaction = await transactionRepository.GetByIdAsync(transactionId);
         if (transaction is null)
-            throw new AggregateNotFoundException($"Transaction {transactionId} not found");
+        {
+            throw new ResourceNotFoundException($"Transaction {transactionId} not found");
+        }
         return transaction;
     }
 }

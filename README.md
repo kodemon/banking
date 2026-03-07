@@ -3,7 +3,15 @@
 ## Env
 
 ```env
-SQLITE_DB_CONNECTION=Data Source=data/dev.db
+SQLITE_DB_PATH=data
+```
+
+## Format
+
+From the `/api` folder run:
+
+```sh
+dotnet csharpier format .
 ```
 
 ## Migrations

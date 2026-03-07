@@ -1,7 +1,10 @@
+using Banking.AtomicFlow;
 using Banking.Shared.AccessControl;
 using Banking.Shared.Database;
 using Banking.Users.AccessControl;
-using Banking.Users.Persistence;
+using Banking.Users.Database;
+using Banking.Users.Interfaces;
+using Banking.Users.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,13 +29,18 @@ public static class UsersModule
     public static IServiceCollection AddUsersModule(this IServiceCollection services)
     {
         services.AddDbContext<UsersDbContext>(options =>
-            options.UseSqlite(SQLiteConnection.Load("users"), sqliteOptions =>
-                sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseSqlite(
+                SQLiteConnection.Load("users"),
+                sqliteOptions =>
+                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
 
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<UserService>();
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(UsersModule).Assembly));
+
+        services.AddRollbackRegistrations(typeof(UsersModule).Assembly);
 
         // ### Access Control
 

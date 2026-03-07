@@ -6,8 +6,11 @@ public static class SQLiteConnection
     {
         LoadEnvFile();
 
-        var basePath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH")
-            ?? throw new InvalidOperationException("No database path provided. Set SQLITE_DB_PATH in your .env file.");
+        var basePath =
+            Environment.GetEnvironmentVariable("SQLITE_DB_PATH")
+            ?? throw new InvalidOperationException(
+                "No database path provided. Set SQLITE_DB_PATH in your .env file."
+            );
 
         return $"Data Source={basePath}/{domain}.db";
     }
@@ -40,7 +43,8 @@ public static class SQLiteConnection
                         if (!Path.IsPathRooted(value))
                         {
                             var absolutePath = Path.GetFullPath(
-                                Path.Combine(directory.FullName, value));
+                                Path.Combine(directory.FullName, value)
+                            );
                             value = $"{absolutePath}";
                         }
                     }

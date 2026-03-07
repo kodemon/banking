@@ -2,7 +2,8 @@ namespace Banking.Shared.ValueObjects;
 
 public record Money(long Amount, Currency Currency)
 {
-    private Money() : this(0, Currency.NOK) { }
+    private Money()
+        : this(0, Currency.NOK) { }
 
     public Money Add(Money other)
     {
@@ -20,7 +21,9 @@ public record Money(long Amount, Currency Currency)
     {
         if (Currency != other.Currency)
         {
-            throw new InvalidOperationException("Cannot add/subtract money with different currencies");
+            throw new InvalidOperationException(
+                "Cannot add/subtract money with different currencies"
+            );
         }
     }
 }

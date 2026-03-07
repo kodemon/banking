@@ -10,7 +10,13 @@ public record Address
     public string Country { get; }
     public string? Region { get; }
 
-    public Address(string street, string city, string postalCode, string country, string? region = null)
+    public Address(
+        string street,
+        string city,
+        string postalCode,
+        string country,
+        string? region = null
+    )
     {
         Validate(street, city, postalCode, country);
         Street = street;
@@ -21,9 +27,14 @@ public record Address
     }
 
     public Address WithStreet(string street) => new(street, City, PostalCode, Country, Region);
+
     public Address WithCity(string city) => new(Street, city, PostalCode, Country, Region);
-    public Address WithPostalCode(string postalCode) => new(Street, City, postalCode, Country, Region);
+
+    public Address WithPostalCode(string postalCode) =>
+        new(Street, City, postalCode, Country, Region);
+
     public Address WithCountry(string country) => new(Street, City, PostalCode, country, Region);
+
     public Address WithRegion(string? region) => new(Street, City, PostalCode, Country, region);
 
     private static void Validate(string street, string city, string postalCode, string country)

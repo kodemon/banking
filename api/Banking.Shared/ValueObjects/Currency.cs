@@ -27,7 +27,10 @@ public class Currency : IEquatable<Currency>
 
         if (upperCode.Length != 3) // TODO: Check against ISO 4217 codes
         {
-            throw new ArgumentException($"Invalid currency code: {code}. Must be 3 characters.", nameof(code));
+            throw new ArgumentException(
+                $"Invalid currency code: {code}. Must be 3 characters.",
+                nameof(code)
+            );
         }
 
         return new Currency(upperCode);

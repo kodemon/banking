@@ -1,15 +1,16 @@
+using System.Security.Claims;
 using Banking.Shared.Exceptions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 
-namespace Banking.Principal.AccessControl;
+namespace Banking.Principals.AccessControl;
 
 internal class ZitadelClaimsTransformation(
-    PrincipalService principalService,
+    PrincipalProvisioner provisioner,
     PrincipalContext principalContext,
     ZitadelMetadataService zitadelMetadata,
-    ILogger<ZitadelClaimsTransformation> logger) : IClaimsTransformation
+    ILogger<ZitadelClaimsTransformation> logger
+) : IClaimsTransformation
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal claimsPrincipal)
     {
@@ -18,7 +19,9 @@ internal class ZitadelClaimsTransformation(
             return claimsPrincipal;
         }
 
-        var sub = claimsPrincipal.FindFirst("sub")?.Value ?? claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var sub =
+            claimsPrincipal.FindFirst("sub")?.Value
+            ?? claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (sub is null)
         {
             logger.LogWarning("JWT has no sub claim, skipping principal resolution");
@@ -28,7 +31,7 @@ internal class ZitadelClaimsTransformation(
         try
         {
             // Resolve using the identity bound in your Principal aggregate
-            var resolved = await principalService.ResolveAsync("zitadel", sub);
+            var resolved = await provisioner.ResolveAsync("zitadel", sub);
             principalContext.Set(resolved);
 
             // Attach principal ID and roles as claims so [Authorize(Roles = "...")] works too
@@ -42,7 +45,10 @@ internal class ZitadelClaimsTransformation(
         }
         catch (AggregateNotFoundException)
         {
-            logger.LogInformation("No principal found for Zitadel sub {Sub} — provisioning new principal", sub);
+            logger.LogInformation(
+                "No principal found for Zitadel sub {Sub} — provisioning new principal",
+                sub
+            );
 
             var resolved = await ProvisionAsync(sub);
             AttachPrincipal(claimsPrincipal, resolved);
@@ -53,20 +59,17 @@ internal class ZitadelClaimsTransformation(
 
     private async Task<ResolvedPrincipal> ProvisionAsync(string sub)
     {
-        // 1. Create the principal with the Zitadel identity bound
-        var response = await principalService.CreatePrincipalAsync(new DTO.Requests.CreatePrincipalRequest
-        {
-            Provider = "zitadel",
-            ExternalId = sub
-        });
+        var principal = await provisioner.CreateAsync("zitadel", sub);
 
-        // 2. Write principalId back to Zitadel user metadata
-        await zitadelMetadata.SetPrincipalIdAsync(sub, response.Id);
+        await zitadelMetadata.SetPrincipalIdAsync(sub, principal.Id);
 
-        logger.LogInformation("Provisioned principal {PrincipalId} for Zitadel sub {Sub}", response.Id, sub);
+        logger.LogInformation(
+            "Provisioned principal {PrincipalId} for Zitadel sub {Sub}",
+            principal.Id,
+            sub
+        );
 
-        // 3. Resolve the full principal
-        return await principalService.ResolveAsync("zitadel", sub);
+        return await provisioner.ResolveAsync("zitadel", sub);
     }
 
     private void AttachPrincipal(ClaimsPrincipal claimsPrincipal, ResolvedPrincipal resolved)

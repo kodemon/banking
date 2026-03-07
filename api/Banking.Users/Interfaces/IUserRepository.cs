@@ -1,4 +1,6 @@
-namespace Banking.Users;
+using Banking.Users.Repositories.Resources;
+
+namespace Banking.Users.Interfaces;
 
 internal interface IUserRepository
 {

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -8,14 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Banking.Users\Banking.Users.csproj" />
     <ProjectReference Include="..\Banking.Accounts\Banking.Accounts.csproj" />
+    <ProjectReference Include="..\Banking.AtomicFlow\Banking.AtomicFlow.csproj" />
     <ProjectReference Include="..\Banking.Principals\Banking.Principals.csproj" />
-    <ProjectReference Include="..\Banking.Transactions\Banking.Transactions.csproj" />
     <ProjectReference Include="..\Banking.Shared\Banking.Shared.csproj" />
+    <ProjectReference Include="..\Banking.Transactions\Banking.Transactions.csproj" />
+    <ProjectReference Include="..\Banking.Users\Banking.Users.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="14.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.3">
@@ -29,5 +30,4 @@
     <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../../</OpenApiDocumentsDirectory>
     <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
   </PropertyGroup>
-
 </Project>

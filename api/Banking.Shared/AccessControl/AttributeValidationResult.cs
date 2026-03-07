@@ -6,5 +6,7 @@ public record AttributeValidationResult
     public string? Error { get; init; }
 
     public static AttributeValidationResult Success() => new() { IsValid = true };
-    public static AttributeValidationResult Fail(string error) => new() { IsValid = false, Error = error };
+
+    public static AttributeValidationResult Fail(string error) =>
+        new() { IsValid = false, Error = error };
 }

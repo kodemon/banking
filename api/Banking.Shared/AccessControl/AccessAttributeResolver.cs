@@ -40,7 +40,7 @@ public abstract class AccessAttributeResolver<TAttributes> : IAccessAttributeRes
     protected static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
     public abstract string Domain { get; }
@@ -67,16 +67,15 @@ public abstract class AccessAttributeResolver<TAttributes> : IAccessAttributeRes
     protected static string GetString(
         IReadOnlyDictionary<string, string> raw,
         string key,
-        string fallback = "") =>
-        raw.TryGetValue(key, out var value) ? value : fallback;
+        string fallback = ""
+    ) => raw.TryGetValue(key, out var value) ? value : fallback;
 
     /// <summary>
     /// Reads and deserializes a complex JSON value, returning a new default instance
     /// if the key is missing or deserialization fails.
     /// </summary>
-    protected static T GetObject<T>(
-        IReadOnlyDictionary<string, string> raw,
-        string key) where T : new()
+    protected static T GetObject<T>(IReadOnlyDictionary<string, string> raw, string key)
+        where T : new()
     {
         if (!raw.TryGetValue(key, out var json))
         {

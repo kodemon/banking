@@ -1,14 +1,16 @@
-using Banking.Transactions.Persistence;
+using Banking.Transactions.Database;
+using Banking.Transactions.Enums;
+using Banking.Transactions.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Transactions;
 
 internal class BalanceService(TransactionsDbContext context) : IBalanceService
 {
-    public async Task<long> GetBalanceAsync(Guid participantId)
+    public async Task<long> GetParticipantIdBalanceAsync(Guid participantId)
     {
-        var entries = await context.JournalEntries
-            .Where(je => je.ParticipantId == participantId)
+        var entries = await context
+            .JournalEntries.Where(je => je.ParticipantId == participantId)
             .Join(
                 context.Transactions,
                 je => je.TransactionId,
@@ -17,8 +19,6 @@ internal class BalanceService(TransactionsDbContext context) : IBalanceService
             )
             .ToListAsync();
 
-        return entries.Sum(e => e.Type == JournalEntryType.Debit
-            ? e.Amount
-            : -e.Amount);
+        return entries.Sum(e => e.Type == JournalEntryType.Debit ? e.Amount : -e.Amount);
     }
 }

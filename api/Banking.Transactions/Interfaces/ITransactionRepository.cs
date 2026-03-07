@@ -1,4 +1,6 @@
-namespace Banking.Transactions;
+using Banking.Transactions.Repositories.Resources;
+
+namespace Banking.Transactions.Interfaces;
 
 internal interface ITransactionRepository
 {

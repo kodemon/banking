@@ -16,7 +16,7 @@ export class CreatePrincipalController extends Controller<{
       isProcessing: false,
       form: new Form(PrincipalFormSchema)
         .onSubmit(async (data) => {
-          await api.POST("/api/Registration", {
+          await api.POST("/api/users", {
             body: {
               name: {
                 given: data.givenName,
@@ -38,7 +38,7 @@ export class CreatePrincipalController extends Controller<{
   }
 
   async #getPrincipal() {
-    const { error, data } = await api.GET("/api/Principal/me");
+    const { error, data } = await api.GET("/api/principals/me");
     if (error) {
       console.log(error);
       return;

@@ -1,7 +1,7 @@
 using Banking.Shared.Exceptions;
 using Banking.Shared.ValueObjects;
-using Banking.Users.DTO.Requests;
-using Banking.Users.DTO.Responses;
+using Banking.Users.Interfaces;
+using Banking.Users.Repositories.Resources;
 
 namespace Banking.Users;
 
@@ -9,70 +9,72 @@ internal class UserService(IUserRepository userRepository)
 {
     /*
      |--------------------------------------------------------------------------------
-     | User
+     | Create
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<UserResponse> CreateUserAsync(CreateUserRequest request)
+    public async Task<User> CreateUserAsync(string email, Name name, DateTime dateOfBirth)
     {
-        if (await userRepository.ExistsByEmailAsync(request.Email))
+        if (await userRepository.ExistsByEmailAsync(email))
         {
-            throw new AggregateConflictException($"Email '{request.Email}' is already registered");
+            throw new AggregateConflictException($"Email '{email}' is already registered");
         }
 
-        var user = new User(new Name(request.Name.Family, request.Name.Given), request.DateOfBirth);
+        var user = new User(name, dateOfBirth);
 
-        user.AddEmail(new Email(request.Email, EmailType.Primary));
+        user.AddEmail(new Email(email, EmailType.Primary));
 
         await userRepository.AddAsync(user);
+
         await userRepository.SaveChangesAsync();
 
-        return user.ToResponse();
-    }
-
-    public async Task<UserResponse> GetUserByIdAsync(Guid userId)
-    {
-        var user = await GetUser(userId);
-        return user.ToResponse();
-    }
-
-    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync()
-    {
-        var users = await userRepository.GetAllAsync();
-        return users.Select(u => u.ToResponse());
-    }
-
-    public async Task<UserResponse> UpdateUserAsync(Guid userId, UpdateUserRequest request)
-    {
-        var user = await GetUser(userId);
-        if (request.Name is not null)
-        {
-            user.SetName(request.Name.Family, request.Name.Given);
-        }
-        await userRepository.SaveChangesAsync();
-        return user.ToResponse();
-    }
-
-    public async Task DeleteUserAsync(Guid userId)
-    {
-        var user = await GetUser(userId);
-        await userRepository.DeleteAsync(user);
-        await userRepository.SaveChangesAsync();
+        return user;
     }
 
     /*
      |--------------------------------------------------------------------------------
-     | Emails
+     | Read
      |--------------------------------------------------------------------------------
      */
 
-    public async Task<EmailResponse> AddEmailAsync(Guid userId, AddEmailRequest request)
+    public async Task<User> GetUserByIdAsync(Guid userId)
+    {
+        return await GetUser(userId);
+    }
+
+    /*
+     |--------------------------------------------------------------------------------
+     | Update
+     |--------------------------------------------------------------------------------
+     */
+
+    public async Task<User> AddEmailAsync(Guid userId, Email email)
     {
         var user = await GetUser(userId);
-        var email = user.AddEmail(new Email(request.Address, request.Type));
+
+        user.AddEmail(email);
+
         await userRepository.SaveChangesAsync();
-        return email.ToResponse();
+
+        return user;
     }
+
+    public async Task<User> AddAddressAsync(Guid userId, Address address)
+    {
+        var user = await GetUser(userId);
+
+        user.AddAddress(address);
+
+        await userRepository.SaveChangesAsync();
+
+        return user;
+    }
+
+    /*
+     |--------------------------------------------------------------------------------
+     | Delete
+     |--------------------------------------------------------------------------------
+     */
 
     public async Task RemoveEmailAsync(Guid userId, Guid emailId)
     {
@@ -81,30 +83,17 @@ internal class UserService(IUserRepository userRepository)
         await userRepository.SaveChangesAsync();
     }
 
-    /*
-     |--------------------------------------------------------------------------------
-     | Addresses
-     |--------------------------------------------------------------------------------
-     */
-
-    public async Task<AddressResponse> AddAddressAsync(Guid userId, AddAddressRequest request)
-    {
-        var user = await GetUser(userId);
-        var address = user.AddAddress(new Address(
-            request.Street,
-            request.City,
-            request.PostalCode,
-            request.Country,
-            request.Region
-        ));
-        await userRepository.SaveChangesAsync();
-        return address.ToResponse();
-    }
-
     public async Task RemoveAddressAsync(Guid userId, Guid addressId)
     {
         var user = await GetUser(userId);
         user.RemoveAddress(addressId);
+        await userRepository.SaveChangesAsync();
+    }
+
+    public async Task DeleteUserAsync(Guid userId)
+    {
+        var user = await GetUser(userId);
+        await userRepository.DeleteAsync(user);
         await userRepository.SaveChangesAsync();
     }
 
@@ -119,7 +108,7 @@ internal class UserService(IUserRepository userRepository)
         var user = await userRepository.GetByIdAsync(userId);
         if (user is null)
         {
-            throw new AggregateNotFoundException($"User {userId} not found");
+            throw new ResourceNotFoundException($"User {userId} not found");
         }
         return user;
     }
