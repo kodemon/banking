@@ -6,9 +6,8 @@ namespace Banking.Principals.Atomics;
 
 internal class SetAttributeRollback : IRollbackRegistration
 {
-    public required Guid Id { get; init; }
-    public required string Domain { get; init; }
-    public required string Key { get; init; }
+    public required Guid PrincipalId { get; init; }
+    public required Dictionary<string, object> Attributes { get; init; }
 
     public static string TaskName => PrincipalAtomicTaskNames.AddPrincipalAttribute;
 
@@ -21,21 +20,15 @@ internal class SetAttributeRollback : IRollbackRegistration
     {
         await sp.RunInScope<IPrincipalRepository>(async repository =>
         {
-            var principal = await repository.GetByIdAsync(rollback.Id);
+            var principal = await repository.GetByIdAsync(rollback.PrincipalId);
             if (principal is null)
             {
                 return;
             }
 
-            var attribute = principal.Attributes.Find(a =>
-                a.Domain == rollback.Domain && a.Key == rollback.Key
-            );
+            principal.Attributes = rollback.Attributes;
 
-            if (attribute is not null)
-            {
-                principal.Attributes.Remove(attribute);
-                await repository.SaveChangesAsync();
-            }
+            await repository.SaveChangesAsync();
         });
     }
 }

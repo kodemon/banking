@@ -5,29 +5,21 @@ using MediatR;
 namespace Banking.Principals.Commands;
 
 internal record RemovePrincipalIdentityCommand(Guid PrincipalId, string Provider, string ExternalId)
-    : IRequest<Principal>;
+    : IRequest;
 
-internal sealed class RemovePrincipalIdentityHandler(IPrincipalRepository principalRepository)
-    : IRequestHandler<RemovePrincipalIdentityCommand, Principal>
+internal sealed class RemovePrincipalIdentityHandler(IPrincipalRepository repository)
+    : IRequestHandler<RemovePrincipalIdentityCommand>
 {
-    public async Task<Principal> Handle(RemovePrincipalIdentityCommand cmd, CancellationToken ct)
+    public async Task Handle(RemovePrincipalIdentityCommand message, CancellationToken token)
     {
-        var principal = await principalRepository.GetByIdAsync(cmd.PrincipalId);
+        var principal = await repository.GetByIdAsync(message.PrincipalId);
         if (principal is null)
         {
-            throw new ResourceNotFoundException($"Principal '{cmd.PrincipalId}' not found.");
+            return;
         }
 
-        var identity = principal.Identities.Find(i =>
-            i.Provider == cmd.Provider && i.ExternalId == cmd.ExternalId
-        );
+        principal.RemoveIdentity(message.Provider, message.ExternalId);
 
-        if (identity is not null)
-        {
-            principal.Identities.Remove(identity);
-            await principalRepository.SaveChangesAsync();
-        }
-
-        return principal;
+        await repository.SaveChangesAsync();
     }
 }

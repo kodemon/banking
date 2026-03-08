@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Banking.Atomic\Banking.Atomic.csproj" />
     <ProjectReference Include="..\Banking.Shared\Banking.Shared.csproj" />
   </ItemGroup>
 

@@ -5,40 +5,32 @@ using MediatR;
 namespace Banking.Principals.Commands;
 
 internal record AddPrincipalIdentityCommand(Guid PrincipalId, string Provider, string ExternalId)
-    : IRequest<Principal>;
+    : IRequest<PrincipalIdentity>;
 
-internal sealed class AddPrincipalIdentityHandler(
-    IPrincipalRepository principalRepository,
-    IPrincipalIdentityRepository identityRepository
-) : IRequestHandler<AddPrincipalIdentityCommand, Principal>
+internal sealed class AddPrincipalIdentityHandler(IPrincipalRepository repository)
+    : IRequestHandler<AddPrincipalIdentityCommand, PrincipalIdentity>
 {
-    public async Task<Principal> Handle(AddPrincipalIdentityCommand cmd, CancellationToken ct)
+    public async Task<PrincipalIdentity> Handle(
+        AddPrincipalIdentityCommand message,
+        CancellationToken token
+    )
     {
-        if (await identityRepository.HasIdentityAsync(cmd.Provider, cmd.ExternalId))
-        {
-            throw new ResourceConflictException(
-                $"Identity '{cmd.Provider}:{cmd.ExternalId}' is already bound to a principal."
-            );
-        }
-
-        var principal = await principalRepository.GetByIdAsync(cmd.PrincipalId);
+        var principal = await repository.GetByIdAsync(message.PrincipalId);
         if (principal is null)
         {
-            throw new ResourceNotFoundException($"Principal '{cmd.PrincipalId}' not found.");
+            throw new ResourceNotFoundException($"Principal '{message.PrincipalId}' not found.");
         }
 
-        principal.Identities.Add(
-            new PrincipalIdentity
-            {
-                Id = Guid.NewGuid(),
-                PrincipalId = cmd.PrincipalId,
-                Provider = cmd.Provider,
-                ExternalId = cmd.ExternalId,
-            }
-        );
+        var identity = principal.GetIdentity(message.Provider, message.ExternalId);
+        if (identity is not null)
+        {
+            return identity;
+        }
 
-        await principalRepository.SaveChangesAsync();
+        identity = principal.AddIdentity(message.Provider, message.ExternalId);
 
-        return principal;
+        await repository.SaveChangesAsync();
+
+        return identity;
     }
 }

@@ -7,7 +7,20 @@ internal class UserAddress
     public Guid Id { get; init; }
     public Guid UserId { get; init; }
 
-    public required Address Address { get; init; }
+    public Address Address { get; init; }
 
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; init; }
+
+    private UserAddress()
+    {
+        Address = null!;
+    }
+
+    public UserAddress(Guid userId, Address address)
+    {
+        Id = Guid.NewGuid();
+        UserId = userId;
+        Address = address;
+        CreatedAt = DateTime.UtcNow;
+    }
 }

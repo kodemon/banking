@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Banking.Principals.Repositories.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,10 +25,17 @@ internal class PrincipalConfiguration : IEntityTypeConfiguration<Principal>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasMany(p => p.Attributes)
-            .WithOne()
-            .HasForeignKey(a => a.PrincipalId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .Property(p => p.Attributes)
+            .HasColumnType("TEXT")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
+                v =>
+                    JsonSerializer.Deserialize<Dictionary<string, object>>(
+                        v,
+                        JsonSerializerOptions.Default
+                    ) ?? new Dictionary<string, object>()
+            )
+            .IsRequired();
 
         builder.Property(p => p.CreatedAt).IsRequired();
     }
@@ -62,30 +70,5 @@ internal class PrincipalRoleConfiguration : IEntityTypeConfiguration<PrincipalRo
         builder.Property(r => r.CreatedAt).IsRequired();
 
         builder.HasIndex(r => new { r.PrincipalId, r.Role }).IsUnique();
-    }
-}
-
-internal class PrincipalAttributeConfiguration : IEntityTypeConfiguration<PrincipalAttribute>
-{
-    public void Configure(EntityTypeBuilder<PrincipalAttribute> builder)
-    {
-        builder.HasKey(a => a.Id);
-        builder.Property(a => a.Id).ValueGeneratedNever();
-
-        builder.Property(a => a.Domain).HasMaxLength(100).IsRequired();
-        builder.Property(a => a.Key).HasMaxLength(100).IsRequired();
-        builder.Property(a => a.Value).HasMaxLength(4000).IsRequired();
-
-        builder.Property(a => a.CreatedAt).IsRequired();
-
-        builder.HasIndex(a => new { a.PrincipalId, a.Domain });
-        builder
-            .HasIndex(a => new
-            {
-                a.PrincipalId,
-                a.Domain,
-                a.Key,
-            })
-            .IsUnique();
     }
 }

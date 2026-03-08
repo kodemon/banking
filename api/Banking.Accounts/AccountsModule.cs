@@ -11,6 +11,14 @@ public static class AccountsModule
 {
     public static IServiceCollection AddAccountsModule(this IServiceCollection services)
     {
+        SetupDatabase(services);
+        SetupCQRS(services);
+
+        return services;
+    }
+
+    private static void SetupDatabase(IServiceCollection services)
+    {
         services.AddDbContext<AccountsDbContext>(options =>
             options.UseSqlite(
                 SQLiteConnection.Load("accounts"),
@@ -18,10 +26,13 @@ public static class AccountsModule
                     sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
-
         services.AddScoped<IAccountRepository, AccountRepository>();
-        services.AddScoped<AccountService>();
+    }
 
-        return services;
+    private static void SetupCQRS(IServiceCollection services)
+    {
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(AccountsModule).Assembly)
+        );
     }
 }

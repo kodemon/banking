@@ -7,9 +7,9 @@ export class AppController extends Controller<{
   async onInit() {
     let hasUser = false;
 
-    const principal = await api.GET("/api/principals/me");
-    if ("data" in principal) {
-      hasUser = principal.data?.attributes.user?.userId !== null;
+    const result = await api.GET("/api/users/me");
+    if ("data" in result) {
+      hasUser = true;
     }
 
     return {

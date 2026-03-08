@@ -5,9 +5,9 @@ namespace Banking.Principals.Queries;
 
 internal record GetPrincipalByIdQuery(Guid PrincipalId) : IRequest<Principal?>;
 
-internal sealed class GetPrincipalByIdHandler(IPrincipalRepository principalRepository)
+internal sealed class GetPrincipalByIdHandler(IPrincipalRepository repository)
     : IRequestHandler<GetPrincipalByIdQuery, Principal?>
 {
     public Task<Principal?> Handle(GetPrincipalByIdQuery query, CancellationToken ct) =>
-        principalRepository.GetByIdAsync(query.PrincipalId);
+        repository.GetByIdAsync(query.PrincipalId);
 }

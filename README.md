@@ -14,6 +14,14 @@ From the `/api` folder run:
 dotnet csharpier format .
 ```
 
+## Clean
+
+Clean out all the generated .NET folders
+
+```sh
+rm -rf  **/*/bin/ **/*/obj/ **/*/bin\\Debug/
+```
+
 ## Migrations
 
 ### Create Migration

@@ -1,7 +1,4 @@
-using Banking.Atomic;
-using Banking.Shared.AccessControl;
 using Banking.Shared.Database;
-using Banking.Users.AccessControl;
 using Banking.Users.Database;
 using Banking.Users.Interfaces;
 using Banking.Users.Repositories;
@@ -10,23 +7,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Banking.Users;
 
-/*
- |--------------------------------------------------------------------------------
- | Users Module
- |--------------------------------------------------------------------------------
- |
- | Single public entry point for the Banking.Users module. The host calls
- | AddUsersModule() with a connection string and knows nothing about what's
- | inside.
- |
- | UsersDbContext is scoped to this module — no other module or the host can
- | access it. Migrations are managed from within this project.
- |
- */
-
 public static class UsersModule
 {
     public static IServiceCollection AddUsersModule(this IServiceCollection services)
+    {
+        SetupDatabase(services);
+        SetupCQRS(services);
+
+        return services;
+    }
+
+    public static void SetupDatabase(IServiceCollection services)
     {
         services.AddDbContext<UsersDbContext>(options =>
             options.UseSqlite(
@@ -35,17 +26,11 @@ public static class UsersModule
                     sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
-
         services.AddScoped<IUserRepository, UserRepository>();
+    }
 
+    public static void SetupCQRS(IServiceCollection services)
+    {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(UsersModule).Assembly));
-
-        services.AddRollbackRegistrations(typeof(UsersModule).Assembly);
-
-        // ### Access Control
-
-        services.AddSingleton<IAccessAttributeResolver, UserAccessAttributeResolver>();
-
-        return services;
     }
 }

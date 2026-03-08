@@ -12,9 +12,11 @@ internal class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Id).ValueGeneratedNever();
 
-        builder.Property(a => a.Type).HasConversion<string>().IsRequired();
+        builder.Property(a => a.Name).IsRequired();
 
-        builder.Property(a => a.Status).HasConversion<string>().IsRequired();
+        builder.Property(a => a.Type).IsRequired();
+
+        builder.Property(a => a.Status).IsRequired();
 
         builder
             .Property(a => a.Currency)

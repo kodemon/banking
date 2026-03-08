@@ -19,7 +19,7 @@ internal class AccountRepository(AccountsDbContext context) : IAccountRepository
         return accounts.Include(a => a.AccountHolders).FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<IEnumerable<Account>> GetAllByHolderIdAsync(Guid holderId)
+    public async Task<List<Account>> GetAllByHolderIdAsync(Guid holderId)
     {
         return await accounts
             .Include(a => a.AccountHolders)

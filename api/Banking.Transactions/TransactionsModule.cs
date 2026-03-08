@@ -10,6 +10,13 @@ public static class TransactionsModule
 {
     public static IServiceCollection AddTransactionsModule(this IServiceCollection services)
     {
+        SetupDatabase(services);
+
+        return services;
+    }
+
+    private static void SetupDatabase(IServiceCollection services)
+    {
         services.AddDbContext<TransactionsDbContext>(options =>
             options.UseSqlite(
                 SQLiteConnection.Load("transactions"),
@@ -17,11 +24,6 @@ public static class TransactionsModule
                     sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
-
         services.AddScoped<ITransactionRepository, TransactionRepository>();
-        services.AddScoped<TransactionService>();
-        services.AddScoped<IBalanceService, BalanceService>();
-
-        return services;
     }
 }

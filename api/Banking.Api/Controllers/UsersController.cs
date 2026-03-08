@@ -1,10 +1,8 @@
-using Banking.Atomic.Libraries;
-using Banking.Principals.AccessControl;
-using Banking.Principals.Atomics;
-using Banking.Principals.Commands;
+using Banking.Api.Identity;
+using Banking.Principals.Queries;
 using Banking.Shared.ValueObjects;
-using Banking.Users.Atomics;
 using Banking.Users.Commands;
+using Banking.Users.Repositories.Resources;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,59 +10,32 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("api/users")]
 [Authorize]
-internal class UsersController(
-    Atomic atomic,
-    IMediator mediator,
-    IPrincipalContext principalContext
-) : ControllerBase
+internal class UsersController(IAuth auth, IMediator mediator) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult> Register([FromBody] PostUserPayload payload)
     {
-        if (principalContext.IsResolved == false)
+        var user = await mediator.Send(
+            new CreateUserCommand(
+                auth.Principal.Id,
+                payload.Email,
+                new Name(payload.Name.Family, payload.Name.Given),
+                payload.DateOfBirth
+            )
+        );
+        return Ok(user);
+    }
+
+    [HttpGet("me")]
+    [ProducesResponseType<User>(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult> Me()
+    {
+        var user = await mediator.Send(new GetUserByOwnerIdQuery(auth.Principal.Id));
+        if (user is null)
         {
-            return Forbid();
+            return NotFound();
         }
-
-        var user = await atomic.Run(
-            AtomicTask.Create(
-                name: UserAtomicTaskNames.CreateUser,
-                commit: () =>
-                    mediator.Send(
-                        new CreateUserCommand(
-                            payload.Email,
-                            new Name(payload.Name.Family, payload.Name.Given),
-                            payload.DateOfBirth
-                        )
-                    ),
-                rollback: (user) => new CreateUserRollback { Id = user.Id }
-            )
-        );
-
-        await atomic.Run(
-            AtomicTask.Create(
-                name: PrincipalAtomicTaskNames.AddPrincipalAttribute,
-                commit: () =>
-                    mediator.Send(
-                        new SetPrincipalAttributeCommand(
-                            principalContext.Principal.Id,
-                            "user",
-                            "user_id",
-                            user.Id.ToString()
-                        )
-                    ),
-                rollback: (principal) =>
-                    new SetAttributeRollback
-                    {
-                        Id = principal.Id,
-                        Domain = "user",
-                        Key = "user_id",
-                    }
-            )
-        );
-
-        await atomic.Complete();
-
         return Ok(user);
     }
 }

@@ -6,24 +6,38 @@ using MediatR;
 
 namespace Banking.Users.Commands;
 
-internal record CreateUserCommand(string Email, Name Name, DateTime DateOfBirth) : IRequest<User>;
+internal record CreateUserCommand(
+    Guid OwnerId,
+    string EmailAddress,
+    Name Name,
+    DateTime DateOfBirth
+) : IRequest<User>;
 
-internal sealed class CreateUserHandler(IUserRepository userRepository)
+internal sealed class CreateUserHandler(IUserRepository repository)
     : IRequestHandler<CreateUserCommand, User>
 {
-    public async Task<User> Handle(CreateUserCommand cmd, CancellationToken ct)
+    public async Task<User> Handle(CreateUserCommand message, CancellationToken token)
     {
-        if (await userRepository.ExistsByEmailAsync(cmd.Email))
+        var user = await repository.GetByOwnerIdAsync(message.OwnerId);
+        if (user is not null)
         {
-            throw new AggregateConflictException($"Email '{cmd.Email}' is already registered.");
+            throw new ResourceConflictException($"Owner already has a user.");
         }
 
-        var user = new User(cmd.Name, cmd.DateOfBirth);
+        user = await repository.GetByEmailAsync(message.EmailAddress);
+        if (user is not null)
+        {
+            throw new AggregateConflictException(
+                $"Email '{message.EmailAddress}' is already registered."
+            );
+        }
 
-        user.AddEmail(new Email(cmd.Email, EmailType.Primary));
+        user = new User(message.OwnerId, message.Name, message.DateOfBirth);
 
-        await userRepository.AddAsync(user);
-        await userRepository.SaveChangesAsync();
+        user.AddEmail(new Email(message.EmailAddress, EmailType.Primary));
+
+        await repository.AddAsync(user);
+        await repository.SaveChangesAsync();
 
         return user;
     }

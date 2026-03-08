@@ -6,38 +6,26 @@ namespace Banking.Principals.Commands;
 
 internal record CreatePrincipalCommand(string Provider, string ExternalId) : IRequest<Principal>;
 
-internal sealed class CreatePrincipalHandler(
-    IPrincipalRepository principalRepository,
-    IPrincipalIdentityRepository identityRepository
-) : IRequestHandler<CreatePrincipalCommand, Principal>
+internal sealed class CreatePrincipalHandler(IPrincipalRepository repository)
+    : IRequestHandler<CreatePrincipalCommand, Principal>
 {
-    public async Task<Principal> Handle(CreatePrincipalCommand cmd, CancellationToken ct)
+    public async Task<Principal> Handle(CreatePrincipalCommand message, CancellationToken ct)
     {
-        if (await identityRepository.HasIdentityAsync(cmd.Provider, cmd.ExternalId))
+        var principal = await repository.GetByIdentityAsync(message.Provider, message.ExternalId);
+        if (principal is not null)
         {
             throw new AggregateConflictException(
-                $"Identity '{cmd.Provider}:{cmd.ExternalId}' is already bound to a principal."
+                $"Identity '{message.Provider}:{message.ExternalId}' is already bound to a principal."
             );
         }
 
-        var principalId = Guid.NewGuid();
+        principal = new Principal();
 
-        var principal = new Principal
-        {
-            Id = principalId,
-            Identities = new List<PrincipalIdentity>([
-                new PrincipalIdentity
-                {
-                    Id = Guid.NewGuid(),
-                    PrincipalId = principalId,
-                    Provider = cmd.Provider,
-                    ExternalId = cmd.ExternalId,
-                },
-            ]),
-        };
+        principal.AddIdentity(message.Provider, message.ExternalId);
+        principal.AddRole("user");
 
-        await principalRepository.AddAsync(principal);
-        await principalRepository.SaveChangesAsync();
+        await repository.AddAsync(principal);
+        await repository.SaveChangesAsync();
 
         return principal;
     }

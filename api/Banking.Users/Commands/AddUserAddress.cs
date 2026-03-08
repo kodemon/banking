@@ -1,4 +1,3 @@
-using Banking.Shared.Exceptions;
 using Banking.Shared.ValueObjects;
 using Banking.Users.Interfaces;
 using Banking.Users.Repositories.Resources;
@@ -6,23 +5,23 @@ using MediatR;
 
 namespace Banking.Users.Commands;
 
-internal record AddUserAddressCommand(Guid UserId, Address Address) : IRequest<User>;
+internal record AddUserAddressCommand(Guid UserId, Address Address) : IRequest<UserAddress?>;
 
-internal sealed class AddUserAddressHandler(IUserRepository userRepository)
-    : IRequestHandler<AddUserAddressCommand, User>
+internal sealed class AddUserAddressHandler(IUserRepository repository)
+    : IRequestHandler<AddUserAddressCommand, UserAddress?>
 {
-    public async Task<User> Handle(AddUserAddressCommand cmd, CancellationToken ct)
+    public async Task<UserAddress?> Handle(AddUserAddressCommand message, CancellationToken token)
     {
-        var user = await userRepository.GetByIdAsync(cmd.UserId);
+        var user = await repository.GetByIdAsync(message.UserId);
         if (user is null)
         {
-            throw new ResourceNotFoundException($"User '{cmd.UserId}' not found.");
+            return null;
         }
 
-        user.AddAddress(cmd.Address);
+        var address = user.AddAddress(message.Address);
 
-        await userRepository.SaveChangesAsync();
+        await repository.SaveChangesAsync();
 
-        return user;
+        return address;
     }
 }

@@ -1,0 +1,12 @@
+services:
+  cerbos:
+    restart: unless-stopped
+    image: ghcr.io/cerbos/cerbos:latest
+    container_name: boilerplate_cerbos
+    command: ["server", "--config=/config.yaml"]
+    ports:
+      - 3592:3592
+      - 3593:3593
+    volumes:
+      - ./cerbos.yaml:/config.yaml
+      - ./policies:/policies

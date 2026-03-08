@@ -3,7 +3,7 @@ set -e
 
 declare -A PROJECTS=(
     ["accounts"]="api/Banking.Accounts"
-    ["atomic-flow"]="api/Banking.AtomicFlow"
+    ["atomic"]="api/Banking.Atomic"
     ["principals"]="api/Banking.Principals"
     ["transactions"]="api/Banking.Transactions"
     ["users"]="api/Banking.Users"

@@ -8,22 +8,24 @@ internal class Account
 {
     public Guid Id { get; init; }
 
+    public string Name { get; set; }
     public AccountType Type { get; init; }
     public AccountStatus Status { get; set; }
-    public Currency Currency { get; init; } = null!;
+    public Currency Currency { get; init; }
 
-    public readonly List<AccountHolder> AccountHolders = new();
+    public List<AccountHolder> AccountHolders;
 
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; init; }
 
-    private Account() { }
-
-    public Account(AccountType type, Currency currency)
+    public Account(string name, AccountType type, Currency currency)
     {
         Id = Guid.NewGuid();
+        Name = name;
         Type = type;
         Status = AccountStatus.Active;
         Currency = currency;
+        AccountHolders = new();
+        CreatedAt = DateTime.UtcNow;
     }
 
     /*

@@ -1,27 +1,11 @@
 using Banking.Atomic.Interfaces;
+using Banking.Atomic.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Banking.Atomic.Services;
-
-/*
- |--------------------------------------------------------------------------------
- | AtomicRecoveryService
- |--------------------------------------------------------------------------------
- |
- | Runs once on startup to replay any rollbacks that were persisted but never
- | executed — for example when a flow partially committed before the process
- | crashed or was killed.
- |
- | Executes pending records in ascending CreatedAt order so that multi-step
- | flows are rolled back in the correct sequence.
- |
- | Records that fail to roll back are left in the database for manual
- | inspection and retry — the same behaviour as a mid-flight rollback failure
- | in Atomic.Run().
- |
- */
 
 internal class AtomicRecoveryService(
     IServiceScopeFactory scopeFactory,
@@ -32,8 +16,38 @@ internal class AtomicRecoveryService(
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
-        var repository = scope.ServiceProvider.GetRequiredService<IAtomicRepository>();
 
+        // ### Database Guard
+        // On clean repository state the database file and tables does not exist yet
+        // so attempting to run this services at build time will crash the process.
+        // This guard prevents the build from crashing as it runs on startup via
+        // the Banking.Api <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+        // trigger.
+
+        var db = scope.ServiceProvider.GetRequiredService<AtomicDbContext>();
+        try
+        {
+            var conn = db.Database.GetDbConnection();
+            await conn.OpenAsync(cancellationToken);
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText =
+                "SELECT COUNT(1) FROM sqlite_master WHERE type='table' AND name='AtomicRecords'";
+            var result = await cmd.ExecuteScalarAsync(cancellationToken);
+            if (Convert.ToInt32(result) == 0)
+            {
+                return;
+            }
+        }
+        catch
+        {
+            return;
+        }
+        finally
+        {
+            await db.Database.CloseConnectionAsync();
+        }
+
+        var repository = scope.ServiceProvider.GetRequiredService<IAtomicRepository>();
         var pending = await repository.GetAllPendingAsync();
 
         if (pending.Count == 0)
@@ -56,7 +70,14 @@ internal class AtomicRecoveryService(
                     record.FlowId
                 );
 
+                // ### Rollback
+                // Execute the rollback task.
+
                 await registry.ExecuteAsync(record.TaskName, record.RollbackJson);
+
+                // ### Clean
+                // Remove the rollback task from the atomic repository.
+
                 await repository.DeleteAsync(record.FlowId, record.TaskName);
 
                 logger.LogInformation(

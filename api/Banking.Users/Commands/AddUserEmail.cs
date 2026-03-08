@@ -6,23 +6,23 @@ using MediatR;
 
 namespace Banking.Users.Commands;
 
-internal record AddUserEmailCommand(Guid UserId, Email Email) : IRequest<User>;
+internal record AddUserEmailCommand(Guid UserId, Email Email) : IRequest<UserEmail?>;
 
-internal sealed class AddUserEmailHandler(IUserRepository userRepository)
-    : IRequestHandler<AddUserEmailCommand, User>
+internal sealed class AddUserEmailHandler(IUserRepository repository)
+    : IRequestHandler<AddUserEmailCommand, UserEmail?>
 {
-    public async Task<User> Handle(AddUserEmailCommand cmd, CancellationToken ct)
+    public async Task<UserEmail?> Handle(AddUserEmailCommand message, CancellationToken token)
     {
-        var user = await userRepository.GetByIdAsync(cmd.UserId);
+        var user = await repository.GetByIdAsync(message.UserId);
         if (user is null)
         {
-            throw new ResourceNotFoundException($"User '{cmd.UserId}' not found.");
+            return null;
         }
 
-        user.AddEmail(cmd.Email);
+        var email = user.AddEmail(message.Email);
 
-        await userRepository.SaveChangesAsync();
+        await repository.SaveChangesAsync();
 
-        return user;
+        return email;
     }
 }

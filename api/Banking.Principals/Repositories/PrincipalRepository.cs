@@ -18,7 +18,6 @@ internal class PrincipalRepository(PrincipalDbContext context) : IPrincipalRepos
         return await principals
             .Include(p => p.Identities)
             .Include(p => p.Roles)
-            .Include(p => p.Attributes)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
@@ -27,7 +26,6 @@ internal class PrincipalRepository(PrincipalDbContext context) : IPrincipalRepos
         return await principals
             .Include(p => p.Identities)
             .Include(p => p.Roles)
-            .Include(p => p.Attributes)
             .FirstOrDefaultAsync(p =>
                 p.Identities.Any(i => i.Provider == provider && i.ExternalId == externalId)
             );
@@ -35,11 +33,7 @@ internal class PrincipalRepository(PrincipalDbContext context) : IPrincipalRepos
 
     public async Task<IEnumerable<Principal>> GetAllAsync()
     {
-        return await principals
-            .Include(p => p.Identities)
-            .Include(p => p.Roles)
-            .Include(p => p.Attributes)
-            .ToListAsync();
+        return await principals.Include(p => p.Identities).Include(p => p.Roles).ToListAsync();
     }
 
     public Task DeleteAsync(Principal principal)

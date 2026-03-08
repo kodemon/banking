@@ -1,4 +1,3 @@
-using Banking.Shared.Exceptions;
 using Banking.Users.Interfaces;
 using MediatR;
 
@@ -14,7 +13,7 @@ internal sealed class DeleteUserHandler(IUserRepository userRepository)
         var user = await userRepository.GetByIdAsync(cmd.UserId);
         if (user is null)
         {
-            throw new ResourceNotFoundException($"User '{cmd.UserId}' not found.");
+            return;
         }
 
         await userRepository.DeleteAsync(user);

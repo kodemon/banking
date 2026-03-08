@@ -1,10 +1,13 @@
 using Banking.Accounts;
 using Banking.Api;
 using Banking.Api.Exceptions;
+using Banking.Api.Identity;
 using Banking.Atomic;
 using Banking.Principals;
 using Banking.Transactions;
 using Banking.Users;
+using Cerbos.Sdk;
+using Cerbos.Sdk.Builder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
@@ -61,9 +64,36 @@ builder
 
 builder.Services.AddAtomicService();
 builder.Services.AddAccountsModule();
-builder.Services.AddPrincipalsModule(builder.Configuration);
+builder.Services.AddPrincipalsModule();
 builder.Services.AddTransactionsModule();
 builder.Services.AddUsersModule();
+
+/*
+ |--------------------------------------------------------------------------------
+ | Identity
+ |--------------------------------------------------------------------------------
+ |
+ | Resolves an IAuth session per-request by:
+ |   1. Extracting the Zitadel JWT "sub" claim and issuer from the authenticated
+ |      HttpContext user.
+ |   2. Looking up the matching Principal via IPrincipalRepository using the
+ |      issuer as the provider key and "sub" as the external identity ID.
+ |   3. Wrapping the result in an Auth instance and registering it as scoped IAuth.
+ |
+ | If the JWT has no "sub" claim, or no matching Principal exists in the database,
+ | a 401 UnauthorizedException is thrown, which AppExceptionHandler maps to a
+ | RFC 9457 problem details response.
+ |
+ */
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton(_ =>
+    CerbosClientBuilder.ForTarget(builder.Configuration["Cerbos:Target"]!).WithPlaintext().Build()
+);
+builder.Services.AddScoped<IAuthResolver, ZitadelAuthResolver>();
+builder.Services.AddScoped(sp =>
+    AuthMiddleware.GetAuth(sp.GetRequiredService<IHttpContextAccessor>().HttpContext!)
+);
 
 /*
  |--------------------------------------------------------------------------------
@@ -101,8 +131,8 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); // serves spec at /openapi/v1.json
-    app.MapScalarApiReference(); // UI at /scalar/v1
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 else
 {
@@ -112,8 +142,9 @@ else
 app.UseRollbackRegistrations();
 app.UseExceptionHandler();
 
-app.UseAuthentication(); // ← validate Zitadel JWT + trigger claims transformation
-app.UseAuthorization(); // ← enforce [Authorize] attributes
+app.UseAuthentication();
+app.UseMiddleware<AuthMiddleware>();
+app.UseAuthorization();
 
 app.MapControllers();
 

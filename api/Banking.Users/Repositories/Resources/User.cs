@@ -6,6 +6,7 @@ namespace Banking.Users.Repositories.Resources;
 internal class User
 {
     public Guid Id { get; init; }
+    public Guid OwnerId { get; init; }
 
     public Name Name { get; private set; }
     public DateTime DateOfBirth { get; init; }
@@ -20,9 +21,10 @@ internal class User
         Name = null!;
     }
 
-    public User(Name name, DateTime dob)
+    public User(Guid ownerId, Name name, DateTime dob)
     {
         Id = Guid.NewGuid();
+        OwnerId = ownerId;
         Name = name;
         DateOfBirth = dob;
         CreatedAt = DateTime.UtcNow;
@@ -34,29 +36,28 @@ internal class User
      |--------------------------------------------------------------------------------
      */
 
+    public bool HasEmail(Email email) => Emails.Any(e => e.Email.Address == email.Address);
+
+    public bool HasEmail(string address) => Emails.Any(e => e.Email.Address == address);
+
     public UserEmail AddEmail(Email email)
     {
-        if (Emails.Any(e => e.Email.Address == email.Address))
+        var userEmail = GetEmail(email);
+        if (userEmail is not null)
         {
-            throw new AggregateConflictException($"Email '{email.Address}' is already registered");
+            return userEmail;
         }
-        var userEmail = new UserEmail
-        {
-            Id = Guid.NewGuid(),
-            UserId = Id,
-            Email = email,
-        };
+        userEmail = new UserEmail(Id, email);
         Emails.Add(userEmail);
         return userEmail;
     }
 
-    public void RemoveEmail(Guid emailId)
+    public UserEmail? GetEmail(Email email) => Emails.Find(e => e.Email.Address == email.Address);
+
+    public UserEmail? GetEmail(string address) => Emails.Find(e => e.Email.Address == address);
+
+    public void RemoveEmail(UserEmail email)
     {
-        var email = Emails.FirstOrDefault(e => e.Id == emailId);
-        if (email is null)
-        {
-            throw new AggregateDeletedException($"Email {emailId} not found for user {Id}");
-        }
         Emails.Remove(email);
     }
 
@@ -68,23 +69,13 @@ internal class User
 
     public UserAddress AddAddress(Address address)
     {
-        var userAddress = new UserAddress
-        {
-            Id = Guid.NewGuid(),
-            UserId = Id,
-            Address = address,
-        };
+        var userAddress = new UserAddress(Id, address);
         Addresses.Add(userAddress);
         return userAddress;
     }
 
-    public void RemoveAddress(Guid addressId)
+    public void RemoveAddress(UserAddress address)
     {
-        var address = Addresses.FirstOrDefault(a => a.Id == addressId);
-        if (address is null)
-        {
-            throw new AggregateDeletedException($"Address {addressId} not found for user {Id}");
-        }
         Addresses.Remove(address);
     }
 }

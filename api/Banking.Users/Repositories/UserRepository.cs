@@ -22,14 +22,25 @@ internal class UserRepository(UsersDbContext context) : IUserRepository
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
+    public async Task<User?> GetByOwnerIdAsync(Guid ownerId)
+    {
+        return await users
+            .Include(u => u.Emails)
+            .Include(u => u.Addresses)
+            .FirstOrDefaultAsync(u => u.OwnerId == ownerId);
+    }
+
+    public async Task<User?> GetByEmailAsync(string emailAddress)
+    {
+        return await users
+            .Include(u => u.Emails)
+            .Include(u => u.Addresses)
+            .FirstOrDefaultAsync(u => u.Emails.Any((email) => email.Email.Address == emailAddress));
+    }
+
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         return await users.Include(u => u.Emails).Include(u => u.Addresses).ToListAsync();
-    }
-
-    public async Task<bool> ExistsByEmailAsync(string emailAddress)
-    {
-        return await users.AnyAsync(u => u.Emails.Any(e => e.Email.Address == emailAddress));
     }
 
     public Task DeleteAsync(User user)
