@@ -29,6 +29,6 @@ echo "[$PROJECT] Creating migration '$MIGRATION_NAME'..."
 
 dotnet ef migrations add "${DOMAIN^}-$MIGRATION_NAME" \
     --project "$PROJECT" \
-    --output-dir Persistence/Migrations
+    --output-dir Database/Migrations
 
 echo "[$PROJECT] Migration '$MIGRATION_NAME' created."

@@ -1,4 +1,4 @@
-﻿using Banking.AtomicFlow;
+﻿using Banking.Atomic;
 using Banking.Principals.AccessControl;
 using Banking.Principals.Database;
 using Banking.Principals.Repositories;

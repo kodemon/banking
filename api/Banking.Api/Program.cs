@@ -1,7 +1,7 @@
 using Banking.Accounts;
 using Banking.Api;
 using Banking.Api.Exceptions;
-using Banking.AtomicFlow;
+using Banking.Atomic;
 using Banking.Principals;
 using Banking.Transactions;
 using Banking.Users;
@@ -59,7 +59,7 @@ builder
         manager.FeatureProviders.Add(new InternalControllerFeatureProvider());
     });
 
-builder.Services.AddAtomicFlowService();
+builder.Services.AddAtomicService();
 builder.Services.AddAccountsModule();
 builder.Services.AddPrincipalsModule(builder.Configuration);
 builder.Services.AddTransactionsModule();

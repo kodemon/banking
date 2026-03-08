@@ -1,9 +1,9 @@
-using Banking.AtomicFlow;
+using Banking.Atomic.Libraries;
 using Banking.Principals.AccessControl;
-using Banking.Principals.AtomicFlows;
+using Banking.Principals.Atomics;
 using Banking.Principals.Commands;
 using Banking.Shared.ValueObjects;
-using Banking.Users.AtomicFlows;
+using Banking.Users.Atomics;
 using Banking.Users.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/users")]
 [Authorize]
 internal class UsersController(
-    AtomicFlow flow,
+    Atomic atomic,
     IMediator mediator,
     IPrincipalContext principalContext
 ) : ControllerBase
@@ -26,8 +26,8 @@ internal class UsersController(
             return Forbid();
         }
 
-        var user = await flow.Run(
-            AtomicFlowTask.Create(
+        var user = await atomic.Run(
+            AtomicTask.Create(
                 name: UserAtomicTaskNames.CreateUser,
                 commit: () =>
                     mediator.Send(
@@ -41,8 +41,8 @@ internal class UsersController(
             )
         );
 
-        await flow.Run(
-            AtomicFlowTask.Create(
+        await atomic.Run(
+            AtomicTask.Create(
                 name: PrincipalAtomicTaskNames.AddPrincipalAttribute,
                 commit: () =>
                     mediator.Send(
@@ -63,7 +63,7 @@ internal class UsersController(
             )
         );
 
-        await flow.Complete();
+        await atomic.Complete();
 
         return Ok(user);
     }

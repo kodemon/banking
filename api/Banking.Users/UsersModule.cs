@@ -1,4 +1,4 @@
-using Banking.AtomicFlow;
+using Banking.Atomic;
 using Banking.Shared.AccessControl;
 using Banking.Shared.Database;
 using Banking.Users.AccessControl;

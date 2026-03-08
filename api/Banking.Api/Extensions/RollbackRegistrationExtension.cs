@@ -1,5 +1,6 @@
-using Banking.AtomicFlow;
-using Banking.AtomicFlow.Interfaces;
+using Banking.Atomic;
+using Banking.Atomic.Interfaces;
+using Banking.Atomic.Libraries;
 
 namespace Banking.Api;
 
@@ -8,7 +9,7 @@ internal static class RollbackRegistrationExtensions
     public static IApplicationBuilder UseRollbackRegistrations(this IApplicationBuilder app)
     {
         var pending = app.ApplicationServices.GetServices<PendingRollbackRegistrations>();
-        var registry = app.ApplicationServices.GetRequiredService<AtomicFlowRollbackRegistry>();
+        var registry = app.ApplicationServices.GetRequiredService<AtomicRollbackRegistry>();
 
         foreach (var batch in pending)
         {
