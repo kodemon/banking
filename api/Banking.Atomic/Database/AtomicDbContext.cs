@@ -9,6 +9,7 @@ internal class AtomicDbContext(DbContextOptions<AtomicDbContext> options) : DbCo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("atomic");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AtomicDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

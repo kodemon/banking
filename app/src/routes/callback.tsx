@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import z from "zod";
 
+import { auth } from "@/services/auth";
 import { zitadel } from "@/services/zitadel.ts";
 
 export const Route = createFileRoute("/callback")({
@@ -19,7 +20,13 @@ function AuthComponent() {
     zitadel.userManager
       .signinRedirectCallback()
       .then(() => {
-        navigate({ to: "/", replace: true });
+        // auth.resolve().then(() => {
+        //   if (auth.isAuthenticated === true) {
+        //     // navigate({ to: "/", replace: true });
+        //   } else {
+        //     console.error("Completed authentication callback, but failed to resolve principal!");
+        //   }
+        // });
       })
       .catch((error) => {
         console.error("Callback error", error);

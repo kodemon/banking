@@ -13,6 +13,7 @@ internal class AccountsDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("accounts");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AccountsDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

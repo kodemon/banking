@@ -1,4 +1,3 @@
-using Banking.Shared.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -9,7 +8,7 @@ internal class UsersDbContextFactory : IDesignTimeDbContextFactory<UsersDbContex
     public UsersDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<UsersDbContext>()
-            .UseSqlite(SQLiteConnection.Load("users"))
+            .UseNpgsql(@"Host=localhost;Username=postgres;Password=postgres;Database=banking")
             .Options;
 
         return new UsersDbContext(options);

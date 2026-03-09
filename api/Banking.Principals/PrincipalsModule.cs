@@ -1,7 +1,6 @@
 ﻿using Banking.Atomic;
 using Banking.Principals.Database;
 using Banking.Principals.Repositories;
-using Banking.Shared.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,22 +8,24 @@ namespace Banking.Principals;
 
 public static class PrincipalsModule
 {
-    public static IServiceCollection AddPrincipalsModule(this IServiceCollection services)
+    public static IServiceCollection AddPrincipalsModule(
+        this IServiceCollection services,
+        string pgConnection
+    )
     {
-        SetupDatabase(services);
+        SetupDatabase(services, pgConnection);
         SetupAtomic(services);
         SetupCQRS(services);
 
         return services;
     }
 
-    public static void SetupDatabase(IServiceCollection services)
+    public static void SetupDatabase(IServiceCollection services, string pgConnection)
     {
         services.AddDbContext<PrincipalDbContext>(options =>
-            options.UseSqlite(
-                SQLiteConnection.Load("principals"),
-                sqliteOptions =>
-                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseNpgsql(
+                pgConnection,
+                pgOptions => pgOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
         services.AddScoped<IPrincipalRepository, PrincipalRepository>();

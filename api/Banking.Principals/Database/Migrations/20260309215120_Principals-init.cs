@@ -11,13 +11,17 @@ namespace Banking.Principals.Database.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "principals");
+
             migrationBuilder.CreateTable(
                 name: "Principals",
+                schema: "principals",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Attributes = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -26,13 +30,14 @@ namespace Banking.Principals.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "PrincipalIdentities",
+                schema: "principals",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PrincipalId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Provider = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    ExternalId = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PrincipalId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Provider = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ExternalId = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,6 +45,7 @@ namespace Banking.Principals.Database.Migrations
                     table.ForeignKey(
                         name: "FK_PrincipalIdentities_Principals_PrincipalId",
                         column: x => x.PrincipalId,
+                        principalSchema: "principals",
                         principalTable: "Principals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -47,12 +53,13 @@ namespace Banking.Principals.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "PrincipalRoles",
+                schema: "principals",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PrincipalId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PrincipalId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Role = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,6 +67,7 @@ namespace Banking.Principals.Database.Migrations
                     table.ForeignKey(
                         name: "FK_PrincipalRoles_Principals_PrincipalId",
                         column: x => x.PrincipalId,
+                        principalSchema: "principals",
                         principalTable: "Principals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -67,17 +75,20 @@ namespace Banking.Principals.Database.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_PrincipalIdentities_PrincipalId",
+                schema: "principals",
                 table: "PrincipalIdentities",
                 column: "PrincipalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PrincipalIdentities_Provider_ExternalId",
+                schema: "principals",
                 table: "PrincipalIdentities",
                 columns: new[] { "Provider", "ExternalId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PrincipalRoles_PrincipalId_Role",
+                schema: "principals",
                 table: "PrincipalRoles",
                 columns: new[] { "PrincipalId", "Role" },
                 unique: true);
@@ -87,13 +98,16 @@ namespace Banking.Principals.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "PrincipalIdentities");
+                name: "PrincipalIdentities",
+                schema: "principals");
 
             migrationBuilder.DropTable(
-                name: "PrincipalRoles");
+                name: "PrincipalRoles",
+                schema: "principals");
 
             migrationBuilder.DropTable(
-                name: "Principals");
+                name: "Principals",
+                schema: "principals");
         }
     }
 }

@@ -13,6 +13,7 @@ internal class TransactionsDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("transactions");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TransactionsDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

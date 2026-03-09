@@ -11,18 +11,22 @@ namespace Banking.Transactions.Database.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "transactions");
+
             migrationBuilder.CreateTable(
                 name: "Transactions",
+                schema: "transactions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
-                    Status = table.Column<string>(type: "TEXT", nullable: false),
-                    ReferenceNumber = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    Amount = table.Column<long>(type: "INTEGER", nullable: false),
-                    Currency = table.Column<string>(type: "TEXT", maxLength: 3, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    ReferenceNumber = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Amount = table.Column<long>(type: "bigint", nullable: false),
+                    Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,13 +35,14 @@ namespace Banking.Transactions.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "JournalEntries",
+                schema: "transactions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TransactionId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ParticipantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TransactionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ParticipantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,6 +50,7 @@ namespace Banking.Transactions.Database.Migrations
                     table.ForeignKey(
                         name: "FK_JournalEntries_Transactions_TransactionId",
                         column: x => x.TransactionId,
+                        principalSchema: "transactions",
                         principalTable: "Transactions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -52,42 +58,50 @@ namespace Banking.Transactions.Database.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_JournalEntries_CreatedAt",
+                schema: "transactions",
                 table: "JournalEntries",
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JournalEntries_ParticipantId",
+                schema: "transactions",
                 table: "JournalEntries",
                 column: "ParticipantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JournalEntries_ParticipantId_CreatedAt",
+                schema: "transactions",
                 table: "JournalEntries",
                 columns: new[] { "ParticipantId", "CreatedAt" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_JournalEntries_TransactionId",
+                schema: "transactions",
                 table: "JournalEntries",
                 column: "TransactionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_CreatedAt",
+                schema: "transactions",
                 table: "Transactions",
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_ReferenceNumber",
+                schema: "transactions",
                 table: "Transactions",
                 column: "ReferenceNumber",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_Status",
+                schema: "transactions",
                 table: "Transactions",
                 column: "Status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_Type",
+                schema: "transactions",
                 table: "Transactions",
                 column: "Type");
         }
@@ -96,10 +110,12 @@ namespace Banking.Transactions.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "JournalEntries");
+                name: "JournalEntries",
+                schema: "transactions");
 
             migrationBuilder.DropTable(
-                name: "Transactions");
+                name: "Transactions",
+                schema: "transactions");
         }
     }
 }

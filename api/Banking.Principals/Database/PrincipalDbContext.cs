@@ -11,6 +11,7 @@ internal class PrincipalDbContext(DbContextOptions<PrincipalDbContext> options) 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("principals");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(PrincipalDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

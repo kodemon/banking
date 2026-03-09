@@ -11,16 +11,20 @@ namespace Banking.Accounts.Database.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "accounts");
+
             migrationBuilder.CreateTable(
                 name: "Accounts",
+                schema: "accounts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    Currency = table.Column<string>(type: "TEXT", maxLength: 3, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,13 +33,14 @@ namespace Banking.Accounts.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AccountHolders",
+                schema: "accounts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AccountId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    HolderId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    HolderType = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    HolderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    HolderType = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -43,6 +48,7 @@ namespace Banking.Accounts.Database.Migrations
                     table.ForeignKey(
                         name: "FK_AccountHolders_Accounts_AccountId",
                         column: x => x.AccountId,
+                        principalSchema: "accounts",
                         principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -50,31 +56,37 @@ namespace Banking.Accounts.Database.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_AccountHolders_AccountId",
+                schema: "accounts",
                 table: "AccountHolders",
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AccountHolders_CreatedAt",
+                schema: "accounts",
                 table: "AccountHolders",
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AccountHolders_HolderId",
+                schema: "accounts",
                 table: "AccountHolders",
                 column: "HolderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_CreatedAt",
+                schema: "accounts",
                 table: "Accounts",
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_Status",
+                schema: "accounts",
                 table: "Accounts",
                 column: "Status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_Type",
+                schema: "accounts",
                 table: "Accounts",
                 column: "Type");
         }
@@ -83,10 +95,12 @@ namespace Banking.Accounts.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AccountHolders");
+                name: "AccountHolders",
+                schema: "accounts");
 
             migrationBuilder.DropTable(
-                name: "Accounts");
+                name: "Accounts",
+                schema: "accounts");
         }
     }
 }

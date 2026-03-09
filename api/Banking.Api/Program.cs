@@ -6,7 +6,6 @@ using Banking.Atomic;
 using Banking.Principals;
 using Banking.Transactions;
 using Banking.Users;
-using Cerbos.Sdk;
 using Cerbos.Sdk.Builder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
@@ -14,6 +13,15 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connString = builder.Configuration.GetConnectionString("Postgres");
+if (string.IsNullOrWhiteSpace(connString))
+{
+    throw new Exception("No valid postgres connection configuration found");
+}
+
+var cerbosTarget =
+    builder.Configuration["Cerbos:Target"] ?? throw new Exception("Cerbos target not configured");
 
 /*
  |--------------------------------------------------------------------------------
@@ -27,8 +35,16 @@ builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = builder.Configuration["Zitadel:Authority"];
-        options.Audience = builder.Configuration["Zitadel:Audience"];
+        var authority =
+            builder.Configuration["Zitadel:Authority"]
+            ?? throw new Exception("Zitadel authority missing");
+
+        var audience =
+            builder.Configuration["Zitadel:Audience"]
+            ?? throw new Exception("Zitadel audience missing");
+
+        options.Authority = authority;
+        options.Audience = audience;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -36,8 +52,8 @@ builder
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Zitadel:Authority"],
-            ValidAudience = builder.Configuration["Zitadel:Audience"],
+            ValidIssuer = authority,
+            ValidAudience = audience,
             NameClaimType = "preferred_username",
             RoleClaimType = System.Security.Claims.ClaimTypes.Role,
         };
@@ -62,11 +78,11 @@ builder
         manager.FeatureProviders.Add(new InternalControllerFeatureProvider());
     });
 
-builder.Services.AddAtomicService();
-builder.Services.AddAccountsModule();
-builder.Services.AddPrincipalsModule();
-builder.Services.AddTransactionsModule();
-builder.Services.AddUsersModule();
+builder.Services.AddAtomicService(connString);
+builder.Services.AddAccountsModule(connString);
+builder.Services.AddPrincipalsModule(connString);
+builder.Services.AddTransactionsModule(connString);
+builder.Services.AddUsersModule(connString);
 
 /*
  |--------------------------------------------------------------------------------
@@ -88,12 +104,17 @@ builder.Services.AddUsersModule();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(_ =>
-    CerbosClientBuilder.ForTarget(builder.Configuration["Cerbos:Target"]!).WithPlaintext().Build()
+    CerbosClientBuilder.ForTarget(cerbosTarget).WithPlaintext().Build()
 );
 builder.Services.AddScoped<IAuthResolver, ZitadelAuthResolver>();
 builder.Services.AddScoped(sp =>
-    AuthMiddleware.GetAuth(sp.GetRequiredService<IHttpContextAccessor>().HttpContext!)
-);
+{
+    var httpContext =
+        sp.GetRequiredService<IHttpContextAccessor>().HttpContext
+        ?? throw new InvalidOperationException("No HttpContext available");
+
+    return AuthMiddleware.GetAuth(httpContext);
+});
 
 /*
  |--------------------------------------------------------------------------------

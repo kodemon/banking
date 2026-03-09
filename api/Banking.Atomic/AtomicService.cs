@@ -3,7 +3,6 @@ using Banking.Atomic.Libraries;
 using Banking.Atomic.Persistence;
 using Banking.Atomic.Repositories;
 using Banking.Atomic.Services;
-using Banking.Shared.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,13 +41,15 @@ public sealed record PendingRollbackRegistrations(List<Type> Types);
 
 public static class AtomicService
 {
-    public static IServiceCollection AddAtomicService(this IServiceCollection services)
+    public static IServiceCollection AddAtomicService(
+        this IServiceCollection services,
+        string pgConnection
+    )
     {
         services.AddDbContext<AtomicDbContext>(options =>
-            options.UseSqlite(
-                SQLiteConnection.Load("atomic"),
-                sqliteOptions =>
-                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseNpgsql(
+                pgConnection,
+                pgOptions => pgOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
 

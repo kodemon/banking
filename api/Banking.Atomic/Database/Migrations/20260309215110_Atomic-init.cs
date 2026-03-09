@@ -11,16 +11,20 @@ namespace Banking.Atomic.Database.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "atomic");
+
             migrationBuilder.CreateTable(
                 name: "AtomicRecords",
+                schema: "atomic",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FlowId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TaskName = table.Column<string>(type: "TEXT", nullable: false),
-                    RollbackJson = table.Column<string>(type: "TEXT", nullable: false),
-                    RollbackType = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FlowId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TaskName = table.Column<string>(type: "text", nullable: false),
+                    RollbackJson = table.Column<string>(type: "text", nullable: false),
+                    RollbackType = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,6 +33,7 @@ namespace Banking.Atomic.Database.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_AtomicRecords_FlowId",
+                schema: "atomic",
                 table: "AtomicRecords",
                 column: "FlowId");
         }
@@ -37,7 +42,8 @@ namespace Banking.Atomic.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AtomicRecords");
+                name: "AtomicRecords",
+                schema: "atomic");
         }
     }
 }

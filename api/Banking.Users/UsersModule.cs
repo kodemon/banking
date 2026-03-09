@@ -1,4 +1,3 @@
-using Banking.Shared.Database;
 using Banking.Users.Database;
 using Banking.Users.Interfaces;
 using Banking.Users.Repositories;
@@ -9,21 +8,23 @@ namespace Banking.Users;
 
 public static class UsersModule
 {
-    public static IServiceCollection AddUsersModule(this IServiceCollection services)
+    public static IServiceCollection AddUsersModule(
+        this IServiceCollection services,
+        string pgConnection
+    )
     {
-        SetupDatabase(services);
+        SetupDatabase(services, pgConnection);
         SetupCQRS(services);
 
         return services;
     }
 
-    public static void SetupDatabase(IServiceCollection services)
+    public static void SetupDatabase(IServiceCollection services, string pgConnection)
     {
         services.AddDbContext<UsersDbContext>(options =>
-            options.UseSqlite(
-                SQLiteConnection.Load("users"),
-                sqliteOptions =>
-                    sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseNpgsql(
+                pgConnection,
+                pgOptions => pgOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             )
         );
         services.AddScoped<IUserRepository, UserRepository>();

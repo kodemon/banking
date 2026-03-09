@@ -17,7 +17,6 @@ const AppLayout = makeControllerComponent(AppController, ({ hasUser }) => {
 
 export const Route = createFileRoute("/_auth")({
   beforeLoad: async ({ context: { auth } }) => {
-    await auth.resolve();
     if (auth.isAuthenticated === false) {
       throw auth.login();
     }

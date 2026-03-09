@@ -1,4 +1,3 @@
-using Banking.Shared.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -9,7 +8,7 @@ internal class AtomicDbContextFactory : IDesignTimeDbContextFactory<AtomicDbCont
     public AtomicDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<AtomicDbContext>()
-            .UseSqlite(SQLiteConnection.Load("atomic"))
+            .UseNpgsql(@"Host=localhost;Username=postgres;Password=postgres;Database=banking")
             .Options;
 
         return new AtomicDbContext(options);

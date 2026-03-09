@@ -1,11 +1,5 @@
 # Banking
 
-## Env
-
-```env
-SQLITE_DB_PATH=data
-```
-
 ## Format
 
 From the `/api` folder run:

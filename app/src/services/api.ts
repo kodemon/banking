@@ -17,7 +17,7 @@ api.use({
   },
   async onResponse({ response }) {
     if (response.status === 401) {
-      await auth.logout();
+      await auth.login();
     }
     return response;
   },
