@@ -1,6 +1,6 @@
-import { Controller } from "@/lib/controller";
+import { Controller } from "@/libraries/controller";
 import { api } from "@/services/api";
-import { auth } from "@/services/auth";
+import { session } from "@/services/session";
 
 import { db } from "../database/dbcontext";
 import { AccountType } from "../enums/account-type";
@@ -24,7 +24,7 @@ export class AccountListController extends Controller<{
   async #subscribe() {
     this.#subscription = db
       .collection("accounts")
-      .subscribe({ "holders.holderId": auth.user.id }, {}, (accounts: any[]) => {
+      .subscribe({ "holders.holderId": await session.getPrincipalId() }, {}, (accounts) => {
         this.setState(
           "grouped",
           [AccountType.Checking, AccountType.Savings, AccountType.Investment, AccountType.Loan]
@@ -51,11 +51,8 @@ export class AccountListController extends Controller<{
         );
       });
 
-    const result = await api.GET("/api/accounts");
-    if ("error" in result) {
-      throw result.error;
-    }
-    await db.collection("accounts").insert(result.data);
+    const accounts = await api.accounts.list();
+    await db.collection("accounts").insert(accounts);
   }
 }
 

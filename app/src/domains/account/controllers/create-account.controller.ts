@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { Controller } from "@/lib/controller";
+import { Controller } from "@/libraries/controller";
 import { api } from "@/services/api";
 import { Currency } from "@/value-objects/currency";
 
@@ -55,14 +55,12 @@ export class CreateAccountController extends Controller<{
 
   async submit() {
     this.setState("processing", true);
-    await api
-      .POST("/api/accounts", {
-        body: {
-          accountName: this.state.form.name,
-          accountType: this.state.form.type,
-          currency: Currency.NOK,
-          holderType: this.state.form.holder,
-        },
+    await api.accounts
+      .create({
+        accountName: this.state.form.name,
+        accountType: this.state.form.type,
+        currency: Currency.NOK,
+        holderType: this.state.form.holder,
       })
       .then(() => {
         this.setState("open", false);

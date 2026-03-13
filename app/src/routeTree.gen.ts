@@ -9,161 +9,109 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as CallbackRouteImport } from './routes/callback'
-import { Route as AuthRouteRouteImport } from './routes/_auth/route'
-import { Route as AuthAuthRouteImport } from './routes/_auth/_auth'
-import { Route as AuthAuthIndexRouteImport } from './routes/_auth/_auth/index'
-import { Route as AuthAuthTransactionsRouteImport } from './routes/_auth/_auth/transactions'
-import { Route as AuthAuthAccountsRouteImport } from './routes/_auth/_auth/accounts'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as UserRouteImport } from './routes/_user'
+import { Route as UserIndexRouteImport } from './routes/_user.index'
+import { Route as UserTransactionsRouteImport } from './routes/_user.transactions'
 
-const CallbackRoute = CallbackRouteImport.update({
-  id: '/callback',
-  path: '/callback',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRouteRoute = AuthRouteRouteImport.update({
-  id: '/_auth',
+const UserRoute = UserRouteImport.update({
+  id: '/_user',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthAuthRoute = AuthAuthRouteImport.update({
-  id: '/_auth',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthAuthIndexRoute = AuthAuthIndexRouteImport.update({
+const UserIndexRoute = UserIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthAuthRoute,
+  getParentRoute: () => UserRoute,
 } as any)
-const AuthAuthTransactionsRoute = AuthAuthTransactionsRouteImport.update({
+const UserTransactionsRoute = UserTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
-  getParentRoute: () => AuthAuthRoute,
-} as any)
-const AuthAuthAccountsRoute = AuthAuthAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
-  getParentRoute: () => AuthAuthRoute,
+  getParentRoute: () => UserRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthAuthIndexRoute
-  '/callback': typeof CallbackRoute
-  '/accounts': typeof AuthAuthAccountsRoute
-  '/transactions': typeof AuthAuthTransactionsRoute
+  '/': typeof UserIndexRoute
+  '/register': typeof RegisterRoute
+  '/transactions': typeof UserTransactionsRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AuthAuthIndexRoute
-  '/callback': typeof CallbackRoute
-  '/accounts': typeof AuthAuthAccountsRoute
-  '/transactions': typeof AuthAuthTransactionsRoute
+  '/register': typeof RegisterRoute
+  '/transactions': typeof UserTransactionsRoute
+  '/': typeof UserIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_auth': typeof AuthRouteRouteWithChildren
-  '/callback': typeof CallbackRoute
-  '/_auth/_auth': typeof AuthAuthRouteWithChildren
-  '/_auth/_auth/accounts': typeof AuthAuthAccountsRoute
-  '/_auth/_auth/transactions': typeof AuthAuthTransactionsRoute
-  '/_auth/_auth/': typeof AuthAuthIndexRoute
+  '/_user': typeof UserRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/_user/transactions': typeof UserTransactionsRoute
+  '/_user/': typeof UserIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/callback' | '/accounts' | '/transactions'
+  fullPaths: '/' | '/register' | '/transactions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/callback' | '/accounts' | '/transactions'
-  id:
-    | '__root__'
-    | '/_auth'
-    | '/callback'
-    | '/_auth/_auth'
-    | '/_auth/_auth/accounts'
-    | '/_auth/_auth/transactions'
-    | '/_auth/_auth/'
+  to: '/register' | '/transactions' | '/'
+  id: '__root__' | '/_user' | '/register' | '/_user/transactions' | '/_user/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  CallbackRoute: typeof CallbackRoute
+  UserRoute: typeof UserRouteWithChildren
+  RegisterRoute: typeof RegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/callback': {
-      id: '/callback'
-      path: '/callback'
-      fullPath: '/callback'
-      preLoaderRoute: typeof CallbackRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth': {
-      id: '/_auth'
+    '/_user': {
+      id: '/_user'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthRouteRouteImport
+      preLoaderRoute: typeof UserRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/_auth': {
-      id: '/_auth/_auth'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthAuthRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/_auth/': {
-      id: '/_auth/_auth/'
+    '/_user/': {
+      id: '/_user/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthAuthIndexRouteImport
-      parentRoute: typeof AuthAuthRoute
+      preLoaderRoute: typeof UserIndexRouteImport
+      parentRoute: typeof UserRoute
     }
-    '/_auth/_auth/transactions': {
-      id: '/_auth/_auth/transactions'
+    '/_user/transactions': {
+      id: '/_user/transactions'
       path: '/transactions'
       fullPath: '/transactions'
-      preLoaderRoute: typeof AuthAuthTransactionsRouteImport
-      parentRoute: typeof AuthAuthRoute
-    }
-    '/_auth/_auth/accounts': {
-      id: '/_auth/_auth/accounts'
-      path: '/accounts'
-      fullPath: '/accounts'
-      preLoaderRoute: typeof AuthAuthAccountsRouteImport
-      parentRoute: typeof AuthAuthRoute
+      preLoaderRoute: typeof UserTransactionsRouteImport
+      parentRoute: typeof UserRoute
     }
   }
 }
 
-interface AuthAuthRouteChildren {
-  AuthAuthAccountsRoute: typeof AuthAuthAccountsRoute
-  AuthAuthTransactionsRoute: typeof AuthAuthTransactionsRoute
-  AuthAuthIndexRoute: typeof AuthAuthIndexRoute
+interface UserRouteChildren {
+  UserTransactionsRoute: typeof UserTransactionsRoute
+  UserIndexRoute: typeof UserIndexRoute
 }
 
-const AuthAuthRouteChildren: AuthAuthRouteChildren = {
-  AuthAuthAccountsRoute: AuthAuthAccountsRoute,
-  AuthAuthTransactionsRoute: AuthAuthTransactionsRoute,
-  AuthAuthIndexRoute: AuthAuthIndexRoute,
+const UserRouteChildren: UserRouteChildren = {
+  UserTransactionsRoute: UserTransactionsRoute,
+  UserIndexRoute: UserIndexRoute,
 }
 
-const AuthAuthRouteWithChildren = AuthAuthRoute._addFileChildren(
-  AuthAuthRouteChildren,
-)
-
-interface AuthRouteRouteChildren {
-  AuthAuthRoute: typeof AuthAuthRouteWithChildren
-}
-
-const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthAuthRoute: AuthAuthRouteWithChildren,
-}
-
-const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
-  AuthRouteRouteChildren,
-)
+const UserRouteWithChildren = UserRoute._addFileChildren(UserRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthRouteRoute: AuthRouteRouteWithChildren,
-  CallbackRoute: CallbackRoute,
+  UserRoute: UserRouteWithChildren,
+  RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

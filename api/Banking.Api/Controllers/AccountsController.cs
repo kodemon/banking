@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/accounts")]
+[Route("accounts")]
 [Authorize]
 [Tags("Account")]
 internal class AccountsController(IAuth auth, IMediator mediator) : ControllerBase

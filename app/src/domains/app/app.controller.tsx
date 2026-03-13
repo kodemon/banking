@@ -1,4 +1,4 @@
-import { Controller } from "@/lib/controller";
+import { Controller } from "@/libraries/controller";
 import { api } from "@/services/api";
 
 export class AppController extends Controller<{

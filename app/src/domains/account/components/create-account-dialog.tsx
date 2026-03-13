@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { makeControllerComponent } from "@/lib/controller";
+import { makeControllerComponent } from "@/libraries/controller";
 
 import { ACCOUNT_META } from "../constants/account-meta";
 import { CreateAccountController } from "../controllers/create-account.controller";

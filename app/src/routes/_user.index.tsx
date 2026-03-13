@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AccountList } from "@/domains/account/components/accounts-list";
 import { CreateAccountDialog } from "@/domains/account/components/create-account-dialog";
 
-export const Route = createFileRoute("/_auth/_auth/accounts")({
+export const Route = createFileRoute("/_user/")({
   component: RouteComponent,
 });
 

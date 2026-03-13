@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { AlertCircle, CalendarIcon, ChevronRight, Loader2, Shield } from "lucide-react";
 import { useState } from "react";
@@ -7,12 +8,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CreatePrincipalController } from "@/domains/principal/controllers/create-principal.controller";
 import { makeControllerComponent } from "@/libraries/controller";
 import { cn } from "@/libraries/utils";
 
-import { CreatePrincipalController } from "../controllers/create-principal.controller";
-
-export const CreatePrincipal = makeControllerComponent(CreatePrincipalController, ({ form, errors, isProcessing }) => {
+const RouteComponent = makeControllerComponent(CreatePrincipalController, ({ form, errors, isProcessing }) => {
   const givenNameError = errors.givenName;
   const familyNameError = errors.familyName;
   const emailError = errors.email;
@@ -278,3 +278,7 @@ function FieldError({ error }: { error?: unknown }) {
     </div>
   );
 }
+
+export const Route = createFileRoute("/register")({
+  component: RouteComponent,
+});

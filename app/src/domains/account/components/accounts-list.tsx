@@ -11,8 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { makeControllerComponent } from "@/lib/controller";
-import { cn } from "@/lib/utils";
+import { makeControllerComponent } from "@/libraries/controller";
+import { cn } from "@/libraries/utils";
 
 import { ACCOUNT_META } from "../constants/account-meta";
 import { type Account, AccountListController } from "../controllers/account-list.controller";

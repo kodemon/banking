@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useLocation } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
   Bell,
@@ -33,9 +33,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+import { cn } from "@/libraries/utils";
+import { api } from "@/services/api";
 
-export const Route = createFileRoute("/_auth/_auth")({
+export const Route = createFileRoute("/_user")({
+  beforeLoad: async () => {
+    const user = await api.users.me();
+    if (user === undefined) {
+      throw redirect({ to: "/register" });
+    }
+  },
   component: DashboardComponent,
 });
 
@@ -133,10 +140,7 @@ function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => 
 
   return (
     <aside
-      className={cn(
-        "flex h-full flex-col border-r bg-card transition-all duration-300",
-        collapsed ? "w-[60px]" : "w-[220px]",
-      )}
+      className={cn("flex h-full flex-col border-r bg-card transition-all duration-300", collapsed ? "w-15" : "w-55")}
     >
       {/* Logo */}
       <div
@@ -248,7 +252,7 @@ function TopBar({ title }: { title: string }) {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-[220px]">
+        <SheetContent side="left" className="p-0 w-55">
           <Sidebar collapsed={false} onToggle={() => {}} />
         </SheetContent>
       </Sheet>

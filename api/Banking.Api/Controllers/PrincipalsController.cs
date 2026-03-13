@@ -1,12 +1,11 @@
 using Banking.Api.Identity;
 using Banking.Principals.Queries;
-using Banking.Principals.Repositories.Resources;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/principals")]
+[Route("principals")]
 [Authorize]
 [Tags("Principal")]
 internal class PrincipalsController(IAuth auth, IMediator mediator) : ControllerBase

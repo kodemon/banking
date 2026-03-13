@@ -1,7 +1,9 @@
+using System.Reflection;
 using Banking.Accounts;
 using Banking.Api;
 using Banking.Api.Exceptions;
 using Banking.Api.Identity;
+using Banking.Api.Identity.Bff;
 using Banking.Atomic;
 using Banking.Principals;
 using Banking.Transactions;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,47 @@ if (string.IsNullOrWhiteSpace(connString))
 
 var cerbosTarget =
     builder.Configuration["Cerbos:Target"] ?? throw new Exception("Cerbos target not configured");
+
+/*
+ |--------------------------------------------------------------------------------
+ | MediatR License
+ |--------------------------------------------------------------------------------
+ */
+
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+    cfg.LicenseKey = builder.Configuration["MediatR:LicenseKey"];
+});
+
+/*
+ |--------------------------------------------------------------------------------
+ | Valkey (session store)
+ |--------------------------------------------------------------------------------
+ |
+ | StackExchange.Redis is a drop-in client for Valkey.
+ | Connection string format: "localhost:6379" or "valkey:6379,password=secret"
+ |
+ */
+
+var valkeyConnString =
+    builder.Configuration.GetConnectionString("Valkey")
+    ?? throw new Exception("No valid Valkey connection configuration found");
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(valkeyConnString)
+);
+
+builder.Services.AddScoped<IBffSessionStore, ValkeySessionStore>();
+builder.Services.AddScoped<IPkceStore, ValkeyPkceStore>();
+
+/*
+ |--------------------------------------------------------------------------------
+ | Zitadel token client (BFF code exchange + refresh)
+ |--------------------------------------------------------------------------------
+ */
+
+builder.Services.AddHttpClient<IZitadelTokenClient, ZitadelTokenClient>();
 
 /*
  |--------------------------------------------------------------------------------
@@ -89,16 +133,14 @@ builder.Services.AddUsersModule(connString);
  | Identity
  |--------------------------------------------------------------------------------
  |
- | Resolves an IAuth session per-request by:
- |   1. Extracting the Zitadel JWT "sub" claim and issuer from the authenticated
- |      HttpContext user.
- |   2. Looking up the matching Principal via IPrincipalRepository using the
- |      issuer as the provider key and "sub" as the external identity ID.
- |   3. Wrapping the result in an Auth instance and registering it as scoped IAuth.
+ | BffMiddleware runs first: reads the session cookie, fetches tokens from Valkey,
+ | refreshes if expiring, and injects "Authorization: Bearer {access_token}".
  |
- | If the JWT has no "sub" claim, or no matching Principal exists in the database,
- | a 401 UnauthorizedException is thrown, which AppExceptionHandler maps to a
- | RFC 9457 problem details response.
+ | UseAuthentication() then validates the injected JWT normally.
+ |
+ | AuthMiddleware resolves the Principal from the validated JWT claims, creating
+ | one via MediatR if it does not yet exist, then stores IAuth in context.Items.
+ | Retrieve it downstream via AuthMiddleware.GetAuth(httpContext).
  |
  */
 
@@ -106,15 +148,12 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(_ =>
     CerbosClientBuilder.ForTarget(cerbosTarget).WithPlaintext().Build()
 );
-builder.Services.AddScoped<IAuthResolver, ZitadelAuthResolver>();
-builder.Services.AddScoped(sp =>
-{
-    var httpContext =
+builder.Services.AddScoped<IAuth>(sp =>
+    AuthMiddleware.GetAuth(
         sp.GetRequiredService<IHttpContextAccessor>().HttpContext
-        ?? throw new InvalidOperationException("No HttpContext available");
-
-    return AuthMiddleware.GetAuth(httpContext);
-});
+            ?? throw new InvalidOperationException("No HttpContext available")
+    )
+);
 
 /*
  |--------------------------------------------------------------------------------
@@ -148,6 +187,7 @@ builder.Services.AddOpenApi("v1");
  | Application
  |--------------------------------------------------------------------------------
  */
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -163,8 +203,8 @@ else
 app.UseRollbackRegistrations();
 app.UseExceptionHandler();
 
-app.UseAuthentication();
 app.UseMiddleware<AuthMiddleware>();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

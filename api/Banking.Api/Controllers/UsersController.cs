@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/users")]
+[Route("users")]
 [Authorize]
 internal class UsersController(IAuth auth, IMediator mediator) : ControllerBase
 {
