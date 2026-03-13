@@ -29,7 +29,7 @@ using Microsoft.AspNetCore.Mvc;
  */
 
 [ApiController]
-[Route("auth")]
+[Route("api/auth")]
 [Tags("Auth")]
 internal class AuthController(
     IBffSessionStore sessionStore,

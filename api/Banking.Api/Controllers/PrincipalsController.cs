@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("principals")]
+[Route("api/principals")]
 [Authorize]
 [Tags("Principal")]
 internal class PrincipalsController(IAuth auth, IMediator mediator) : ControllerBase

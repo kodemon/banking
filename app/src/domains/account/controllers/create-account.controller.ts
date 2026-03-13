@@ -4,6 +4,7 @@ import { Controller } from "@/libraries/controller";
 import { api } from "@/services/api";
 import { Currency } from "@/value-objects/currency";
 
+import { pushAccounts } from "../database/dbcontext";
 import { AccountHolderType, AccountHolderTypeSchema } from "../enums/account-holder-type";
 import { AccountType, AccountTypeSchema } from "../enums/account-type";
 
@@ -62,7 +63,8 @@ export class CreateAccountController extends Controller<{
         currency: Currency.NOK,
         holderType: this.state.form.holder,
       })
-      .then(() => {
+      .then((account) => {
+        pushAccounts([account]);
         this.setState("open", false);
         this.reset();
       })

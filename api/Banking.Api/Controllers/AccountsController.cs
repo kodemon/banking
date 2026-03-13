@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("accounts")]
+[Route("api/accounts")]
 [Authorize]
 [Tags("Account")]
 internal class AccountsController(IAuth auth, IMediator mediator) : ControllerBase
@@ -36,7 +36,27 @@ internal class AccountsController(IAuth auth, IMediator mediator) : ControllerBa
             )
         );
 
-        return Ok(account);
+        return Ok(
+            new AccountResponse(
+                account.Id,
+                account.Number.ToString(),
+                account.Name,
+                account.Type,
+                account.Status,
+                account.Currency.Code,
+                account.AccountHolders.Select(
+                    (holder) =>
+                        new AccountHolderResponse(
+                            holder.Id,
+                            holder.AccountId,
+                            holder.HolderId,
+                            holder.HolderType,
+                            holder.CreatedAt
+                        )
+                ),
+                account.CreatedAt
+            )
+        );
     }
 
     [HttpGet]
@@ -59,6 +79,7 @@ internal class AccountsController(IAuth auth, IMediator mediator) : ControllerBa
                 (account) =>
                     new AccountResponse(
                         account.Id,
+                        account.Number.ToString(),
                         account.Name,
                         account.Type,
                         account.Status,
@@ -90,6 +111,7 @@ internal record CreateAccountPayload
 
 internal record AccountResponse(
     Guid Id,
+    string Number,
     string Name,
     AccountType Type,
     AccountStatus Status,

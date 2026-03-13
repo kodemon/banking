@@ -16,6 +16,7 @@ import { cn } from "@/libraries/utils";
 
 import { ACCOUNT_META } from "../constants/account-meta";
 import { type Account, AccountListController } from "../controllers/account-list.controller";
+import { getAccountStatusLabel } from "../enums/account-status";
 import { AccountType } from "../enums/account-type";
 
 export const AccountList = makeControllerComponent(AccountListController, ({ grouped }) => {
@@ -70,7 +71,7 @@ function AccountCard({ account }: { account: Account }) {
               variant="outline"
               className={cn(
                 "text-[10px] capitalize",
-                account.status === "active"
+                getAccountStatusLabel(account.status) === "Active"
                   ? "text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-800"
                   : "text-muted-foreground",
               )}
@@ -133,9 +134,7 @@ function AccountCard({ account }: { account: Account }) {
       {/* Card footer */}
       <div className="px-5 py-3 bg-muted/30 flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="font-mono">
-            {showNumber ? account.accountNumber.replace(/•/g, "x") : account.accountNumber}
-          </span>
+          <span className="font-mono">{showNumber ? account.accountNumber.public : account.accountNumber.private}</span>
           <button
             type="button"
             onClick={() => setShowNumber((s) => !s)}
@@ -143,14 +142,14 @@ function AccountCard({ account }: { account: Account }) {
           >
             {showNumber ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
           </button>
-          <CopyButton value={account.accountNumber} />
+          <CopyButton value={account.accountNumber.public} />
         </div>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           {account.interestRate !== undefined && (
             <span className="font-medium text-foreground">{account.interestRate}% APY</span>
           )}
-          <span>Opened {formatDate(account.openedDate)}</span>
+          <span>Opened {formatDate(account.openedDate.toISOString())}</span>
         </div>
       </div>
     </div>

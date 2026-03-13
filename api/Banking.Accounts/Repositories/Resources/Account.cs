@@ -8,6 +8,8 @@ internal class Account
 {
     public Guid Id { get; init; }
 
+    public AccountNumber Number { get; init; }
+
     public string Name { get; set; }
     public AccountType Type { get; init; }
     public AccountStatus Status { get; set; }
@@ -20,6 +22,7 @@ internal class Account
     public Account(string name, AccountType type, Currency currency)
     {
         Id = Guid.NewGuid();
+        Number = AccountNumber.Generate();
         Name = name;
         Type = type;
         Status = AccountStatus.Active;

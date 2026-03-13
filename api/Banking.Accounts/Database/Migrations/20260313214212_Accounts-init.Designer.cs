@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Banking.Accounts.Database.Migrations
 {
     [DbContext(typeof(AccountsDbContext))]
-    [Migration("20260309215057_Accounts-init")]
+    [Migration("20260313214212_Accounts-init")]
     partial class Accountsinit
     {
         /// <inheritdoc />
@@ -43,6 +43,11 @@ namespace Banking.Accounts.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -52,6 +57,9 @@ namespace Banking.Accounts.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
 
                     b.HasIndex("Status");
 

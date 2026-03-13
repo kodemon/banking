@@ -20,6 +20,7 @@ namespace Banking.Accounts.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Number = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
@@ -77,6 +78,13 @@ namespace Banking.Accounts.Database.Migrations
                 schema: "accounts",
                 table: "Accounts",
                 column: "CreatedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Accounts_Number",
+                schema: "accounts",
+                table: "Accounts",
+                column: "Number",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_Status",

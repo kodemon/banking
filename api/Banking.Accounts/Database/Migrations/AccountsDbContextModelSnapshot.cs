@@ -40,6 +40,11 @@ namespace Banking.Accounts.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -49,6 +54,9 @@ namespace Banking.Accounts.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
 
                     b.HasIndex("Status");
 

@@ -1,8 +1,8 @@
 import { Controller } from "@/libraries/controller";
-import { api } from "@/services/api";
 import { session } from "@/services/session";
 
-import { db } from "../database/dbcontext";
+import { db, resolveAccounts } from "../database/dbcontext";
+import type { AccountStatus } from "../enums/account-status";
 import { AccountType } from "../enums/account-type";
 
 export class AccountListController extends Controller<{
@@ -22,6 +22,7 @@ export class AccountListController extends Controller<{
   }
 
   async #subscribe() {
+    await resolveAccounts();
     this.#subscription = db
       .collection("accounts")
       .subscribe({ "holders.holderId": await session.getPrincipalId() }, {}, (accounts) => {
@@ -38,11 +39,14 @@ export class AccountListController extends Controller<{
                   type: account.type,
                   balance: 0,
                   availableBalance: 0,
-                  accountNumber: "•••• •••• 9012",
+                  accountNumber: {
+                    private: `•••• •• ${account.number.slice(-6)}`,
+                    public: account.number,
+                  },
                   routingNumber: "021000021",
                   interestRate: 4.65,
                   changePercent: 0.8,
-                  currency: account.currency.code,
+                  currency: account.currency,
                   status: account.status,
                   openedDate: account.createdAt,
                 })),
@@ -50,9 +54,6 @@ export class AccountListController extends Controller<{
             .filter((g) => g.accounts.length > 0),
         );
       });
-
-    const accounts = await api.accounts.list();
-    await db.collection("accounts").insert(accounts);
   }
 }
 
@@ -67,11 +68,14 @@ export type Account = {
   type: AccountType;
   balance: number;
   availableBalance?: number;
-  accountNumber: string;
+  accountNumber: {
+    private: string;
+    public: string;
+  };
   routingNumber?: string;
   interestRate?: number;
   changePercent?: number;
   currency: string;
-  status: "active" | "frozen" | "closed";
-  openedDate: string;
+  status: AccountStatus;
+  openedDate: Date;
 };

@@ -12,6 +12,12 @@ internal class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Id).ValueGeneratedNever();
 
+        builder
+            .Property(a => a.Number)
+            .HasConversion(an => an.Value, value => new AccountNumber(value))
+            .HasMaxLength(11)
+            .IsRequired();
+
         builder.Property(a => a.Name).IsRequired();
 
         builder.Property(a => a.Type).IsRequired();
@@ -32,6 +38,7 @@ internal class AccountConfiguration : IEntityTypeConfiguration<Account>
             .HasForeignKey(h => h.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(a => a.Number).IsUnique();
         builder.HasIndex(a => a.Status);
         builder.HasIndex(a => a.Type);
         builder.HasIndex(a => a.CreatedAt);
