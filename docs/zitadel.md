@@ -1,51 +1,3 @@
-# Banking
-
-## Format
-
-From the `/api` folder run:
-
-```sh
-dotnet csharpier format .
-```
-
-## Clean
-
-Clean out all the generated .NET folders
-
-```sh
-rm -rf  **/*/bin/ **/*/obj/ **/*/bin\\Debug/
-```
-
-## Migrations
-
-### Create Migration
-
-To generate migrations for each domain run:
-
-```sh
-./scripts/migration/create.sh $DOMAIN $MIGRATION_NAME
-```
-
-Example: `./scripts/migration/create.sh accounts init`
-
-### Apply Migration
-
-Once migration updates has been generated run:
-
-```sh
-./scripts/migration/update.sh
-```
-
-## Run
-
-To start the API run:
-
-```sh
-dotnet run --project api/Banking.Api
-```
-
----
-
 ## Zitadel Setup
 
 The API uses Zitadel's [Session v2 API](https://zitadel.com/docs/apis/resources/session_service_v2) as the sole source of truth for session state. There is no local session store — every request is validated directly against Zitadel. The following setup is required before the API will start correctly.
@@ -194,6 +146,4 @@ Note the double underscore (`__`) — this is how .NET maps environment variable
 | `Zitadel:Authority` | No | Base URL of your Zitadel instance | `https://iam.example.com` |
 | `Zitadel:Audience` | No | Client ID of the User Agent application — public identifier, not sensitive | `363944439091101698` |
 | `Zitadel:Domain` | No | WebAuthn RP domain — must match the browser's address bar | `localhost` |
-| `Zitadel:OrganisationId` | No | Resource ID of your application organisation — scopes login name lookup to the correct org | `354958981547950083` |
-| `Zitadel:AppOrigin` | No | Full origin of your app — sent as the `Origin` header on passkey registration calls so Zitadel derives the correct WebAuthn RP ID | `http://localhost:3000` |
 | `Zitadel:ServiceAccountToken` | **Yes** | PAT for the `login-client` service user — **never commit this** | _(set via secrets)_ |

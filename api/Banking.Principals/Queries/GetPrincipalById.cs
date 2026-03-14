@@ -1,4 +1,4 @@
-using Banking.Principals.Repositories.Resources;
+using Banking.Principals.Database.Models;
 using MediatR;
 
 namespace Banking.Principals.Queries;

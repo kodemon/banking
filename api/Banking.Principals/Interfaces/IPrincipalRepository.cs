@@ -1,4 +1,4 @@
-using Banking.Principals.Repositories.Resources;
+using Banking.Principals.Database.Models;
 
 namespace Banking.Principals;
 

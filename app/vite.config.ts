@@ -21,10 +21,7 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:5283",
-      },
-    },
+    port: 3000,
+    allowedHosts: ["local.banking.com"],
   },
 });

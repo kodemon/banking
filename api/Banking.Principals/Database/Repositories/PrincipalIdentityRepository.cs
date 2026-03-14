@@ -1,8 +1,7 @@
-using Banking.Principals.Database;
-using Banking.Principals.Repositories.Resources;
+using Banking.Principals.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Banking.Principals.Repositories;
+namespace Banking.Principals.Database.Repositories;
 
 internal class PrincipalIdentityRepository(PrincipalDbContext context)
     : IPrincipalIdentityRepository

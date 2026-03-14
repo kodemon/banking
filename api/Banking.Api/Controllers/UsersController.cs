@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 internal class UsersController(IAuth auth, IMediator mediator) : ControllerBase
 {
     [HttpPost]
+    [ProducesResponseType<User>(200)]
+    [ProducesResponseType(409)]
     public async Task<ActionResult> Register([FromBody] PostUserPayload payload)
     {
         var user = await mediator.Send(

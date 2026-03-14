@@ -15,6 +15,26 @@ namespace Banking.Principals.Database.Migrations
                 name: "principals");
 
             migrationBuilder.CreateTable(
+                name: "PrincipalPasskeyCredentials",
+                schema: "principals",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PrincipalId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CredentialId = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    PublicKey = table.Column<byte[]>(type: "bytea", nullable: false),
+                    SignCount = table.Column<long>(type: "bigint", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    AaGuid = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUsedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PrincipalPasskeyCredentials", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Principals",
                 schema: "principals",
                 columns: table => new
@@ -26,6 +46,21 @@ namespace Banking.Principals.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Principals", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PrincipalSessions",
+                schema: "principals",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PrincipalId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PrincipalSessions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -87,11 +122,36 @@ namespace Banking.Principals.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PrincipalPasskeyCredentials_CredentialId",
+                schema: "principals",
+                table: "PrincipalPasskeyCredentials",
+                column: "CredentialId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PrincipalPasskeyCredentials_PrincipalId",
+                schema: "principals",
+                table: "PrincipalPasskeyCredentials",
+                column: "PrincipalId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PrincipalRoles_PrincipalId_Role",
                 schema: "principals",
                 table: "PrincipalRoles",
                 columns: new[] { "PrincipalId", "Role" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PrincipalSessions_ExpiresAt",
+                schema: "principals",
+                table: "PrincipalSessions",
+                column: "ExpiresAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PrincipalSessions_PrincipalId",
+                schema: "principals",
+                table: "PrincipalSessions",
+                column: "PrincipalId");
         }
 
         /// <inheritdoc />
@@ -102,7 +162,15 @@ namespace Banking.Principals.Database.Migrations
                 schema: "principals");
 
             migrationBuilder.DropTable(
+                name: "PrincipalPasskeyCredentials",
+                schema: "principals");
+
+            migrationBuilder.DropTable(
                 name: "PrincipalRoles",
+                schema: "principals");
+
+            migrationBuilder.DropTable(
+                name: "PrincipalSessions",
                 schema: "principals");
 
             migrationBuilder.DropTable(

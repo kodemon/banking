@@ -1,6 +1,6 @@
 ﻿using Banking.Atomic;
 using Banking.Principals.Database;
-using Banking.Principals.Repositories;
+using Banking.Principals.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

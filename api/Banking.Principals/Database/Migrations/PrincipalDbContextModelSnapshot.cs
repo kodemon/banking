@@ -23,7 +23,7 @@ namespace Banking.Principals.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Banking.Principals.Repositories.Resources.Principal", b =>
+            modelBuilder.Entity("Banking.Principals.Database.Models.Principal", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -40,7 +40,7 @@ namespace Banking.Principals.Database.Migrations
                     b.ToTable("Principals", "principals");
                 });
 
-            modelBuilder.Entity("Banking.Principals.Repositories.Resources.PrincipalIdentity", b =>
+            modelBuilder.Entity("Banking.Principals.Database.Models.PrincipalIdentity", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -71,7 +71,51 @@ namespace Banking.Principals.Database.Migrations
                     b.ToTable("PrincipalIdentities", "principals");
                 });
 
-            modelBuilder.Entity("Banking.Principals.Repositories.Resources.PrincipalRole", b =>
+            modelBuilder.Entity("Banking.Principals.Database.Models.PrincipalPasskeyCredential", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AaGuid")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CredentialId")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("PrincipalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("PublicKey")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<long>("SignCount")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CredentialId")
+                        .IsUnique();
+
+                    b.HasIndex("PrincipalId");
+
+                    b.ToTable("PrincipalPasskeyCredentials", "principals");
+                });
+
+            modelBuilder.Entity("Banking.Principals.Database.Models.PrincipalRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -95,25 +139,48 @@ namespace Banking.Principals.Database.Migrations
                     b.ToTable("PrincipalRoles", "principals");
                 });
 
-            modelBuilder.Entity("Banking.Principals.Repositories.Resources.PrincipalIdentity", b =>
+            modelBuilder.Entity("Banking.Principals.Database.Models.PrincipalSession", b =>
                 {
-                    b.HasOne("Banking.Principals.Repositories.Resources.Principal", null)
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PrincipalId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("PrincipalId");
+
+                    b.ToTable("PrincipalSessions", "principals");
+                });
+
+            modelBuilder.Entity("Banking.Principals.Database.Models.PrincipalIdentity", b =>
+                {
+                    b.HasOne("Banking.Principals.Database.Models.Principal", null)
                         .WithMany("Identities")
                         .HasForeignKey("PrincipalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Banking.Principals.Repositories.Resources.PrincipalRole", b =>
+            modelBuilder.Entity("Banking.Principals.Database.Models.PrincipalRole", b =>
                 {
-                    b.HasOne("Banking.Principals.Repositories.Resources.Principal", null)
+                    b.HasOne("Banking.Principals.Database.Models.Principal", null)
                         .WithMany("Roles")
                         .HasForeignKey("PrincipalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Banking.Principals.Repositories.Resources.Principal", b =>
+            modelBuilder.Entity("Banking.Principals.Database.Models.Principal", b =>
                 {
                     b.Navigation("Identities");
 

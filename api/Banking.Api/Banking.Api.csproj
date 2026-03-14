@@ -17,15 +17,15 @@
 
   <ItemGroup>
     <PackageReference Include="Cerbos.Sdk" Version="1.9.0" />
+    <PackageReference Include="Fido2" Version="4.0.0" />
     <PackageReference Include="MediatR" Version="14.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Bcl.Memory" Version="11.0.0-preview.2.26159.112" />
     <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Scalar.AspNetCore" Version="2.*" />
-    <PackageReference Include="StackExchange.Redis" Version="2.12.1" />
   </ItemGroup>
 
   <PropertyGroup>

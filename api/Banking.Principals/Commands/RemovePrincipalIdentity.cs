@@ -1,5 +1,3 @@
-using Banking.Principals.Repositories.Resources;
-using Banking.Shared.Exceptions;
 using MediatR;
 
 namespace Banking.Principals.Commands;

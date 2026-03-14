@@ -1,11 +1,26 @@
 volumes:
   postgres-data:
     driver: local
-  valkey-data:
+  caddy-data:
     driver: local
-  
 
 services:
+
+  # ---------------------------------------------------------------------------
+  # Reverse proxy
+  # ---------------------------------------------------------------------------
+
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+
+  # ---------------------------------------------------------------------------
+  # Database
+  # ---------------------------------------------------------------------------
 
   postgres:
     image: postgres:18
@@ -16,16 +31,12 @@ services:
       POSTGRES_USER: postgres
     ports:
       - 5432:5432
-
-  valkey:
-    image: valkey/valkey:9
-    restart: unless-stopped
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - 6379:6379
     volumes:
-      - valkey-data:/data
+      - postgres-data:/var/lib/postgresql
+
+  # ---------------------------------------------------------------------------
+  # Authorisation
+  # ---------------------------------------------------------------------------
 
   cerbos:
     restart: unless-stopped

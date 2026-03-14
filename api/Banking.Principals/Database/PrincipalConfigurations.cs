@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Banking.Principals.Repositories.Resources;
+using Banking.Principals.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -55,6 +55,41 @@ internal class PrincipalIdentityConfiguration : IEntityTypeConfiguration<Princip
 
         builder.HasIndex(i => new { i.Provider, i.ExternalId }).IsUnique();
         builder.HasIndex(i => i.PrincipalId);
+    }
+}
+
+internal class PasskeyCredentialConfiguration : IEntityTypeConfiguration<PrincipalPasskeyCredential>
+{
+    public void Configure(EntityTypeBuilder<PrincipalPasskeyCredential> builder)
+    {
+        builder.HasKey(c => c.Id);
+        builder.Property(c => c.Id).ValueGeneratedNever();
+
+        builder.Property(c => c.CredentialId).HasMaxLength(512).IsRequired();
+        builder.Property(c => c.PublicKey).IsRequired();
+        builder.Property(c => c.SignCount).IsRequired();
+        builder.Property(c => c.Name).HasMaxLength(100).IsRequired();
+        builder.Property(c => c.AaGuid).IsRequired();
+        builder.Property(c => c.CreatedAt).IsRequired();
+
+        builder.HasIndex(c => c.CredentialId).IsUnique();
+        builder.HasIndex(c => c.PrincipalId);
+    }
+}
+
+internal class SessionConfiguration : IEntityTypeConfiguration<PrincipalSession>
+{
+    public void Configure(EntityTypeBuilder<PrincipalSession> builder)
+    {
+        builder.HasKey(s => s.Id);
+        builder.Property(s => s.Id).ValueGeneratedNever();
+
+        builder.Property(s => s.PrincipalId).IsRequired();
+        builder.Property(s => s.CreatedAt).IsRequired();
+        builder.Property(s => s.ExpiresAt).IsRequired();
+
+        builder.HasIndex(s => s.PrincipalId);
+        builder.HasIndex(s => s.ExpiresAt);
     }
 }
 

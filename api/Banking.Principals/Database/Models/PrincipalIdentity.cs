@@ -1,4 +1,4 @@
-namespace Banking.Principals.Repositories.Resources;
+namespace Banking.Principals.Database.Models;
 
 internal class PrincipalIdentity
 {

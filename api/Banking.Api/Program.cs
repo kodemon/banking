@@ -3,17 +3,13 @@ using Banking.Accounts;
 using Banking.Api;
 using Banking.Api.Exceptions;
 using Banking.Api.Identity;
-using Banking.Api.Identity.Bff;
 using Banking.Atomic;
 using Banking.Principals;
 using Banking.Transactions;
 using Banking.Users;
 using Cerbos.Sdk.Builder;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,73 +33,6 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
     cfg.LicenseKey = builder.Configuration["MediatR:LicenseKey"];
 });
-
-/*
- |--------------------------------------------------------------------------------
- | Valkey (session store)
- |--------------------------------------------------------------------------------
- |
- | StackExchange.Redis is a drop-in client for Valkey.
- | Connection string format: "localhost:6379" or "valkey:6379,password=secret"
- |
- */
-
-var valkeyConnString =
-    builder.Configuration.GetConnectionString("Valkey")
-    ?? throw new Exception("No valid Valkey connection configuration found");
-
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(valkeyConnString)
-);
-
-builder.Services.AddScoped<IBffSessionStore, ValkeySessionStore>();
-builder.Services.AddScoped<IPkceStore, ValkeyPkceStore>();
-
-/*
- |--------------------------------------------------------------------------------
- | Zitadel token client (BFF code exchange + refresh)
- |--------------------------------------------------------------------------------
- */
-
-builder.Services.AddHttpClient<IZitadelTokenClient, ZitadelTokenClient>();
-
-/*
- |--------------------------------------------------------------------------------
- | Authentication
- |--------------------------------------------------------------------------------
- */
-
-Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
-
-builder
-    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var authority =
-            builder.Configuration["Zitadel:Authority"]
-            ?? throw new Exception("Zitadel authority missing");
-
-        var audience =
-            builder.Configuration["Zitadel:Audience"]
-            ?? throw new Exception("Zitadel audience missing");
-
-        options.Authority = authority;
-        options.Audience = audience;
-
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = authority,
-            ValidAudience = audience,
-            NameClaimType = "preferred_username",
-            RoleClaimType = System.Security.Claims.ClaimTypes.Role,
-        };
-    });
-
-builder.Services.AddAuthorization();
 
 /*
  |--------------------------------------------------------------------------------
@@ -133,14 +62,11 @@ builder.Services.AddUsersModule(connString);
  | Identity
  |--------------------------------------------------------------------------------
  |
- | BffMiddleware runs first: reads the session cookie, fetches tokens from Valkey,
- | refreshes if expiring, and injects "Authorization: Bearer {access_token}".
+ | AuthMiddleware runs on every request.  It reads the "zitadel_session" cookie,
+ | calls Zitadel's Session v2 API to validate it, then resolves the application
+ | Principal via MediatR and stores IAuth in context.Items.
  |
- | UseAuthentication() then validates the injected JWT normally.
- |
- | AuthMiddleware resolves the Principal from the validated JWT claims, creating
- | one via MediatR if it does not yet exist, then stores IAuth in context.Items.
- | Retrieve it downstream via AuthMiddleware.GetAuth(httpContext).
+ | Retrieve downstream with: AuthMiddleware.GetAuth(httpContext)
  |
  */
 
@@ -192,8 +118,14 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapOpenApi("/api/openapi/{documentName}.json");
+    app.MapScalarApiReference(
+        "/api/scalar",
+        options =>
+        {
+            options.OpenApiRoutePattern = "/api/openapi/{documentName}.json";
+        }
+    );
 }
 else
 {
@@ -204,8 +136,6 @@ app.UseRollbackRegistrations();
 app.UseExceptionHandler();
 
 app.UseMiddleware<AuthMiddleware>();
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 
