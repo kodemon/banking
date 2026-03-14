@@ -13,8 +13,9 @@ internal record RegisterPasskeyCredentialCommand(
     Guid AaGuid
 ) : IRequest<PrincipalPasskeyCredential>;
 
-internal sealed class RegisterPasskeyCredentialHandler(IPasskeyCredentialRepository repository)
-    : IRequestHandler<RegisterPasskeyCredentialCommand, PrincipalPasskeyCredential>
+internal sealed class RegisterPasskeyCredentialHandler(
+    IPrincipalPasskeyCredentialRepository repository
+) : IRequestHandler<RegisterPasskeyCredentialCommand, PrincipalPasskeyCredential>
 {
     public async Task<PrincipalPasskeyCredential> Handle(
         RegisterPasskeyCredentialCommand command,

@@ -3,8 +3,13 @@
  | WebAuthn Utilities
  |--------------------------------------------------------------------------------
  |
- | Conversion helpers between the base64url strings Zitadel uses in its JSON API
- | and the ArrayBuffers the browser's WebAuthn API requires.
+ | Conversion helpers between the base64url strings the API uses in its JSON
+ | responses and the ArrayBuffers the browser's WebAuthn API requires.
+ |
+ | Firefox has a cross-compartment wrapper bug where ArrayBuffers derived from
+ | JSON.parse'd objects cannot be passed to navigator.credentials.create/get.
+ | All helpers here defensively copy buffers via Uint8Array.from() to ensure
+ | they are fresh allocations in the current compartment.
  |
  */
 
@@ -14,10 +19,11 @@ export function isPublicKeyCredential(credential: Credential | null): credential
 
 export function base64urlToBuffer(base64url: string): ArrayBuffer {
   const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
-  const binary = atob(base64);
-  const buffer = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) buffer[i] = binary.charCodeAt(i);
-  return buffer.buffer;
+  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+  const binary = atob(padded);
+  // Uint8Array.from ensures a fresh ArrayBuffer in the current JS compartment,
+  // avoiding Firefox's cross-compartment wrapper rejection.
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0)).buffer;
 }
 
 export function bufferToBase64url(buffer: ArrayBuffer): string {
@@ -28,44 +34,48 @@ export function bufferToBase64url(buffer: ArrayBuffer): string {
 }
 
 export function prepareCreationOptions(options: Record<string, unknown>): PublicKeyCredentialCreationOptions {
-  const pub = { ...options } as Record<string, unknown>;
+  // Build a plain object from scratch rather than spreading the parsed JSON
+  // object — spreading preserves the cross-compartment taint in Firefox.
+  const user = options.user as Record<string, unknown>;
 
-  if (typeof pub.challenge === "string") {
-    pub.challenge = base64urlToBuffer(pub.challenge);
-  }
-
-  if (pub.user && typeof (pub.user as Record<string, unknown>).id === "string") {
-    pub.user = {
-      ...(pub.user as Record<string, unknown>),
-      id: base64urlToBuffer((pub.user as Record<string, unknown>).id as string),
-    };
-  }
-
-  if (Array.isArray(pub.excludeCredentials)) {
-    pub.excludeCredentials = pub.excludeCredentials.map((c: Record<string, unknown>) => ({
-      ...c,
-      id: typeof c.id === "string" ? base64urlToBuffer(c.id) : c.id,
-    }));
-  }
-
-  return pub as unknown as PublicKeyCredentialCreationOptions;
+  return {
+    challenge: base64urlToBuffer(options.challenge as string),
+    rp: options.rp as PublicKeyCredentialRpEntity,
+    user: {
+      id: base64urlToBuffer(user.id as string),
+      name: user.name as string,
+      displayName: user.displayName as string,
+    },
+    pubKeyCredParams: options.pubKeyCredParams as PublicKeyCredentialParameters[],
+    timeout: options.timeout as number | undefined,
+    attestation: options.attestation as AttestationConveyancePreference | undefined,
+    authenticatorSelection: options.authenticatorSelection as AuthenticatorSelectionCriteria | undefined,
+    excludeCredentials: Array.isArray(options.excludeCredentials)
+      ? (options.excludeCredentials as Record<string, unknown>[]).map((c) => ({
+          type: c.type as PublicKeyCredentialType,
+          id: base64urlToBuffer(c.id as string),
+          transports: c.transports as AuthenticatorTransport[] | undefined,
+        }))
+      : [],
+    extensions: options.extensions as AuthenticationExtensionsClientInputs | undefined,
+  };
 }
 
 export function prepareRequestOptions(options: Record<string, unknown>): PublicKeyCredentialRequestOptions {
-  const pub = { ...options } as Record<string, unknown>;
-
-  if (typeof pub.challenge === "string") {
-    pub.challenge = base64urlToBuffer(pub.challenge);
-  }
-
-  if (Array.isArray(pub.allowCredentials)) {
-    pub.allowCredentials = pub.allowCredentials.map((c: Record<string, unknown>) => ({
-      ...c,
-      id: typeof c.id === "string" ? base64urlToBuffer(c.id) : c.id,
-    }));
-  }
-
-  return pub as unknown as PublicKeyCredentialRequestOptions;
+  return {
+    challenge: base64urlToBuffer(options.challenge as string),
+    timeout: options.timeout as number | undefined,
+    rpId: options.rpId as string | undefined,
+    userVerification: options.userVerification as UserVerificationRequirement | undefined,
+    allowCredentials: Array.isArray(options.allowCredentials)
+      ? (options.allowCredentials as Record<string, unknown>[]).map((c) => ({
+          type: c.type as PublicKeyCredentialType,
+          id: base64urlToBuffer(c.id as string),
+          transports: c.transports as AuthenticatorTransport[] | undefined,
+        }))
+      : [],
+    extensions: options.extensions as AuthenticationExtensionsClientInputs | undefined,
+  };
 }
 
 export function serializeAttestation(credential: PublicKeyCredential): Record<string, unknown> {

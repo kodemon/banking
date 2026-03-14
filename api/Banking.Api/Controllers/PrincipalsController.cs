@@ -1,12 +1,11 @@
 using Banking.Api.Identity;
 using Banking.Principals.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/principals")]
-[Authorize]
+[RequireSession]
 [Tags("Principal")]
 internal class PrincipalsController(IAuth auth, IMediator mediator) : ControllerBase
 {

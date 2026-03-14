@@ -8,6 +8,7 @@ using Banking.Principals;
 using Banking.Transactions;
 using Banking.Users;
 using Cerbos.Sdk.Builder;
+using Fido2NetLib;
 using Microsoft.AspNetCore.Http.Features;
 using Scalar.AspNetCore;
 
@@ -50,6 +51,19 @@ builder
     {
         manager.FeatureProviders.Add(new InternalControllerFeatureProvider());
     });
+
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IFido2>(_ => new Fido2(
+    new Fido2Configuration
+    {
+        ServerDomain = builder.Configuration["Fido2:ServerDomain"] ?? "localhost",
+        ServerName = builder.Configuration["Fido2:ServerName"] ?? "Banking",
+        Origins = (builder.Configuration["Fido2:Origins"] ?? "https://localhost;http://localhost")
+            .Split(';', StringSplitOptions.RemoveEmptyEntries)
+            .Select(o => o.Trim())
+            .ToHashSet(),
+    }
+));
 
 builder.Services.AddAtomicService(connString);
 builder.Services.AddAccountsModule(connString);

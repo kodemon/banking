@@ -13,7 +13,9 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as UserRouteImport } from './routes/_user'
 import { Route as UserIndexRouteImport } from './routes/_user.index'
+import { Route as RegisterProfileRouteImport } from './routes/register_.profile'
 import { Route as UserTransactionsRouteImport } from './routes/_user.transactions'
+import { Route as UserAccountsRouteImport } from './routes/_user.accounts'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -34,9 +36,19 @@ const UserIndexRoute = UserIndexRouteImport.update({
   path: '/',
   getParentRoute: () => UserRoute,
 } as any)
+const RegisterProfileRoute = RegisterProfileRouteImport.update({
+  id: '/register_/profile',
+  path: '/register/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UserTransactionsRoute = UserTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
+  getParentRoute: () => UserRoute,
+} as any)
+const UserAccountsRoute = UserAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => UserRoute,
 } as any)
 
@@ -44,12 +56,16 @@ export interface FileRoutesByFullPath {
   '/': typeof UserIndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/accounts': typeof UserAccountsRoute
   '/transactions': typeof UserTransactionsRoute
+  '/register/profile': typeof RegisterProfileRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/accounts': typeof UserAccountsRoute
   '/transactions': typeof UserTransactionsRoute
+  '/register/profile': typeof RegisterProfileRoute
   '/': typeof UserIndexRoute
 }
 export interface FileRoutesById {
@@ -57,20 +73,36 @@ export interface FileRoutesById {
   '/_user': typeof UserRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_user/accounts': typeof UserAccountsRoute
   '/_user/transactions': typeof UserTransactionsRoute
+  '/register_/profile': typeof RegisterProfileRoute
   '/_user/': typeof UserIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/transactions'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/accounts'
+    | '/transactions'
+    | '/register/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/register' | '/transactions' | '/'
+  to:
+    | '/login'
+    | '/register'
+    | '/accounts'
+    | '/transactions'
+    | '/register/profile'
+    | '/'
   id:
     | '__root__'
     | '/_user'
     | '/login'
     | '/register'
+    | '/_user/accounts'
     | '/_user/transactions'
+    | '/register_/profile'
     | '/_user/'
   fileRoutesById: FileRoutesById
 }
@@ -78,6 +110,7 @@ export interface RootRouteChildren {
   UserRoute: typeof UserRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  RegisterProfileRoute: typeof RegisterProfileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -110,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UserIndexRouteImport
       parentRoute: typeof UserRoute
     }
+    '/register_/profile': {
+      id: '/register_/profile'
+      path: '/register/profile'
+      fullPath: '/register/profile'
+      preLoaderRoute: typeof RegisterProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_user/transactions': {
       id: '/_user/transactions'
       path: '/transactions'
@@ -117,15 +157,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UserTransactionsRouteImport
       parentRoute: typeof UserRoute
     }
+    '/_user/accounts': {
+      id: '/_user/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof UserAccountsRouteImport
+      parentRoute: typeof UserRoute
+    }
   }
 }
 
 interface UserRouteChildren {
+  UserAccountsRoute: typeof UserAccountsRoute
   UserTransactionsRoute: typeof UserTransactionsRoute
   UserIndexRoute: typeof UserIndexRoute
 }
 
 const UserRouteChildren: UserRouteChildren = {
+  UserAccountsRoute: UserAccountsRoute,
   UserTransactionsRoute: UserTransactionsRoute,
   UserIndexRoute: UserIndexRoute,
 }
@@ -136,6 +185,7 @@ const rootRouteChildren: RootRouteChildren = {
   UserRoute: UserRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  RegisterProfileRoute: RegisterProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

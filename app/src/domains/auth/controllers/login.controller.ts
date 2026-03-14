@@ -6,7 +6,6 @@ import { isPublicKeyCredential, prepareRequestOptions, serializeAssertion } from
 
 export class LoginController extends Controller<
   {
-    loginName: string;
     processing: boolean;
     error: string;
   },
@@ -16,43 +15,34 @@ export class LoginController extends Controller<
 > {
   async onInit() {
     return {
-      loginName: "",
       processing: false,
       error: "",
     };
   }
 
-  setLoginName(value: string) {
-    this.setState({ loginName: value, error: "" });
-  }
-
   async login() {
-    if (!this.state.loginName.trim()) {
-      this.setState("error", "Please enter your login name.");
-      return;
-    }
-
     this.setState({ processing: true, error: "" });
 
     try {
-      const { sessionId, sessionToken, challengeOptions } = await api.auth.passkeyLoginBegin({
-        loginName: this.state.loginName.trim(),
-      });
+      // 1. Begin login — use a random key to correlate the challenge with the verify call.
+      //    The new API no longer needs a username; it's a discoverable credential flow.
+      const sessionKey = crypto.randomUUID();
 
+      const { options } = await api.auth.login.passkey.begin({ sessionKey });
+
+      // 2. Prompt the browser to select a passkey.
       const credential = await navigator.credentials.get({
-        publicKey: prepareRequestOptions(
-          (challengeOptions as Record<string, unknown>).publicKey as Record<string, unknown>,
-        ),
+        publicKey: prepareRequestOptions(options as Record<string, unknown>),
       });
 
       if (!isPublicKeyCredential(credential)) {
         throw new Error("Passkey authentication was cancelled or is not supported.");
       }
 
-      await api.auth.passkeyLoginVerify({
-        sessionId,
-        sessionToken,
-        credentialAssertionData: serializeAssertion(credential),
+      // 3. Verify the assertion — server validates and sets the session cookie.
+      await api.auth.login.passkey.verify({
+        sessionKey,
+        assertionResponse: serializeAssertion(credential),
       });
 
       router.navigate({ to: this.props.returnTo ?? "/" });

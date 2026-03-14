@@ -5,12 +5,11 @@ using Banking.Accounts.Repositories.Resources;
 using Banking.Api.Identity;
 using Banking.Shared.ValueObjects;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/accounts")]
-[Authorize]
+[RequireSession]
 [Tags("Account")]
 internal class AccountsController(IAuth auth, IMediator mediator) : ControllerBase
 {

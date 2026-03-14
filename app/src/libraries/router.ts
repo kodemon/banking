@@ -6,7 +6,7 @@ import { routeTree } from "../routeTree.gen.ts";
 
 export const router = createRouter({
   routeTree,
-  defaultPreload: "intent",
+  defaultPreload: false,
   scrollRestoration: true,
   context: {
     session,

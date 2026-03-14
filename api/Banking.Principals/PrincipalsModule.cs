@@ -1,6 +1,8 @@
 ﻿using Banking.Atomic;
 using Banking.Principals.Database;
 using Banking.Principals.Database.Repositories;
+using Banking.Principals.Interfaces;
+using Banking.Principals.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,6 +32,11 @@ public static class PrincipalsModule
         );
         services.AddScoped<IPrincipalRepository, PrincipalRepository>();
         services.AddScoped<IPrincipalIdentityRepository, PrincipalIdentityRepository>();
+        services.AddScoped<IPrincipalSessionRepository, PrincipalSessionRepository>();
+        services.AddScoped<
+            IPrincipalPasskeyCredentialRepository,
+            PrincipalPasskeyCredentialRepository
+        >();
     }
 
     public static void SetupAtomic(IServiceCollection services)

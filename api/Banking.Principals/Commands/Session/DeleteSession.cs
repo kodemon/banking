@@ -5,7 +5,7 @@ namespace Banking.Principals.Commands;
 
 internal record DeleteSessionCommand(Guid SessionId) : IRequest;
 
-internal sealed class DeleteSessionHandler(ISessionRepository repository)
+internal sealed class DeleteSessionHandler(IPrincipalSessionRepository repository)
     : IRequestHandler<DeleteSessionCommand>
 {
     public async Task Handle(DeleteSessionCommand command, CancellationToken ct)

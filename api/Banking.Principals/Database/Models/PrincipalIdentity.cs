@@ -12,6 +12,7 @@ internal class PrincipalIdentity
 
     public PrincipalIdentity(Guid principalId, string provider, string externalId)
     {
+        Id = Guid.NewGuid();
         PrincipalId = principalId;
         Provider = provider;
         ExternalId = externalId;

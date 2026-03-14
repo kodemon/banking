@@ -6,7 +6,7 @@ namespace Banking.Principals.Commands;
 
 internal record CreateSessionCommand(Guid PrincipalId) : IRequest<PrincipalSession>;
 
-internal sealed class CreateSessionHandler(ISessionRepository repository)
+internal sealed class CreateSessionHandler(IPrincipalSessionRepository repository)
     : IRequestHandler<CreateSessionCommand, PrincipalSession>
 {
     private static readonly TimeSpan SessionLifetime = TimeSpan.FromDays(30);

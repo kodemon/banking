@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Banking.Principals.Repositories;
 
 internal class PrincipalPasskeyCredentialRepository(PrincipalDbContext db)
-    : IPasskeyCredentialRepository
+    : IPrincipalPasskeyCredentialRepository
 {
     public Task<PrincipalPasskeyCredential?> GetByCredentialIdAsync(
         string credentialId,

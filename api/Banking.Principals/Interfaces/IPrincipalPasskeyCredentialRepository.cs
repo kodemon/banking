@@ -2,7 +2,7 @@ using Banking.Principals.Database.Models;
 
 namespace Banking.Principals.Interfaces;
 
-internal interface IPasskeyCredentialRepository
+internal interface IPrincipalPasskeyCredentialRepository
 {
     Task<PrincipalPasskeyCredential?> GetByCredentialIdAsync(
         string credentialId,

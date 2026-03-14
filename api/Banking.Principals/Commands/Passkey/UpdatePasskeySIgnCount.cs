@@ -5,8 +5,9 @@ namespace Banking.Principals.Commands;
 
 internal record UpdatePasskeySignCountCommand(string CredentialId, uint SignCount) : IRequest;
 
-internal sealed class UpdatePasskeySignCountHandler(IPasskeyCredentialRepository repository)
-    : IRequestHandler<UpdatePasskeySignCountCommand>
+internal sealed class UpdatePasskeySignCountHandler(
+    IPrincipalPasskeyCredentialRepository repository
+) : IRequestHandler<UpdatePasskeySignCountCommand>
 {
     public async Task Handle(UpdatePasskeySignCountCommand command, CancellationToken ct)
     {

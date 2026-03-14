@@ -5,15 +5,9 @@ export class AppController extends Controller<{
   hasUser: boolean;
 }> {
   async onInit() {
-    let hasUser = false;
-
-    const result = await api.GET("/api/users/me");
-    if ("data" in result) {
-      hasUser = true;
-    }
-
+    const user = await api.users.me();
     return {
-      hasUser,
+      hasUser: user !== undefined,
     };
   }
 }

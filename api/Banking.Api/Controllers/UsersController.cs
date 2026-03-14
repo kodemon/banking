@@ -4,12 +4,11 @@ using Banking.Shared.ValueObjects;
 using Banking.Users.Commands;
 using Banking.Users.Repositories.Resources;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/users")]
-[Authorize]
+[RequireSession]
 internal class UsersController(IAuth auth, IMediator mediator) : ControllerBase
 {
     [HttpPost]

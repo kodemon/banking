@@ -2,7 +2,7 @@ using Banking.Principals.Database.Models;
 
 namespace Banking.Principals.Interfaces;
 
-internal interface ISessionRepository
+internal interface IPrincipalSessionRepository
 {
     Task<PrincipalSession?> GetByIdAsync(Guid sessionId, CancellationToken ct = default);
     Task AddAsync(PrincipalSession session, CancellationToken ct = default);

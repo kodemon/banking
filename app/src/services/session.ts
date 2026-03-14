@@ -1,15 +1,49 @@
-import type { components } from "@/openapi.gen";
-
 import { api } from "./api";
 
-let cachedPrincipal: Promise<Principal> | undefined;
+let cachedPrincipal: Promise<{ id: string; roles: string[] }> | undefined;
+
+export const SessionState = {
+  Guest: 0,
+  Authenticated: 1,
+  Registered: 2,
+} as const;
+
+type SessionState = (typeof SessionState)[keyof typeof SessionState];
+
+let sessionState: SessionState = SessionState.Guest;
+let isResolved: boolean = false;
 
 export const session = {
-  async isAuthenticated(): Promise<boolean> {
-    return fetch("/api/auth/session", { credentials: "include" }).then((res) => res.ok);
+  async resolve() {
+    if (isResolved === true) {
+      return;
+    }
+    isResolved = true;
+    const session = await api.auth.session();
+    if (session === undefined) {
+      return;
+    }
+    sessionState = SessionState.Authenticated;
+    const user = await api.users.me();
+    if (user === undefined) {
+      return;
+    }
+    sessionState = SessionState.Registered;
   },
 
-  get principal(): Promise<Principal> {
+  get isGuest(): boolean {
+    return sessionState === SessionState.Guest;
+  },
+
+  get isAuthenticated(): boolean {
+    return sessionState !== SessionState.Guest;
+  },
+
+  get isRegistered(): boolean {
+    return sessionState === SessionState.Registered;
+  },
+
+  get principal(): Promise<{ id: string; roles: string[] }> {
     if (cachedPrincipal === undefined) {
       cachedPrincipal = api.principals.me();
     }
@@ -17,18 +51,19 @@ export const session = {
   },
 
   async getPrincipalId(): Promise<string> {
-    return this.principal.then((principal) => principal.id);
+    return this.principal.then((p) => p.id);
   },
 
   login(): void {
-    window.location.href = `/api/auth/login?return_to=${encodeURIComponent(window.location.pathname)}`;
+    window.location.href = "/login";
   },
 
   logout(): void {
-    window.location.href = "/api/auth/logout";
+    api.auth.logout().finally(() => {
+      cachedPrincipal = undefined;
+      window.location.href = "/login";
+    });
   },
 };
 
 export type Session = typeof session;
-
-export type Principal = components["schemas"]["ResolvedPrincipal"];

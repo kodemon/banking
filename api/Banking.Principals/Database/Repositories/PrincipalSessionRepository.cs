@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Principals.Repositories;
 
-internal class PrincipalSessionRepository(PrincipalDbContext db) : ISessionRepository
+internal class PrincipalSessionRepository(PrincipalDbContext db) : IPrincipalSessionRepository
 {
     public Task<PrincipalSession?> GetByIdAsync(Guid sessionId, CancellationToken ct = default) =>
         db.PrincipalSessions.FirstOrDefaultAsync(s => s.Id == sessionId, ct);

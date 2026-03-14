@@ -53,12 +53,14 @@ public class AuthController(
     public IActionResult PasskeyRegistrationBegin([FromBody] PasskeyRegistrationBeginRequest body)
     {
         var userId = Guid.NewGuid();
+        var email = body.Email;
+        var displayName = "Banking";
 
         var user = new Fido2User
         {
             Id = userId.ToByteArray(),
-            Name = body.Email,
-            DisplayName = body.DisplayName,
+            Name = email,
+            DisplayName = displayName,
         };
 
         var options = fido2.RequestNewCredential(
@@ -75,7 +77,7 @@ public class AuthController(
             }
         );
 
-        cache.Set($"reg:{body.Email}", options, ChallengeTtl);
+        cache.Set($"reg:{userId}", options, ChallengeTtl);
 
         return Ok(new PasskeyRegistrationBeginResponse(userId.ToString(), options));
     }
@@ -93,14 +95,14 @@ public class AuthController(
     )
     {
         if (
-            !cache.TryGetValue($"reg:{body.Email}", out CredentialCreateOptions? options)
+            !cache.TryGetValue($"reg:{body.UserId}", out CredentialCreateOptions? options)
             || options is null
         )
         {
             return BadRequest("Registration session expired. Please try again.");
         }
 
-        cache.Remove($"reg:{body.Email}");
+        cache.Remove($"reg:{body.UserId}");
 
         AuthenticatorAttestationRawResponse attestation;
         try
@@ -329,12 +331,12 @@ public class AuthController(
 // Request / response shapes
 // ---------------------------------------------------------------------------
 
-public record PasskeyRegistrationBeginRequest(string Email, string DisplayName);
+public record PasskeyRegistrationBeginRequest(string Email);
 
 public record PasskeyRegistrationBeginResponse(string UserId, CredentialCreateOptions Options);
 
 public record PasskeyRegistrationVerifyRequest(
-    string Email,
+    string UserId,
     string CredentialName,
     JsonElement AttestationResponse
 );

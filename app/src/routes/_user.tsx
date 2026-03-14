@@ -34,13 +34,14 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/libraries/utils";
-import { api } from "@/services/api";
 
 export const Route = createFileRoute("/_user")({
-  beforeLoad: async () => {
-    const user = await api.users.me();
-    if (user === undefined) {
-      throw redirect({ to: "/register" });
+  beforeLoad: async ({ context: { session } }) => {
+    if (session.isGuest === true) {
+      throw redirect({ to: "/login", search: { return_to: location.pathname } });
+    }
+    if (session.isRegistered === false) {
+      throw redirect({ to: "/register/profile" });
     }
   },
   component: DashboardComponent,

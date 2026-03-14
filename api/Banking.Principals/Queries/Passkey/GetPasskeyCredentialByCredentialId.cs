@@ -8,7 +8,7 @@ internal record GetPasskeyCredentialByCredentialIdQuery(string CredentialId)
     : IRequest<PrincipalPasskeyCredential?>;
 
 internal sealed class GetPasskeyCredentialByCredentialIdHandler(
-    IPasskeyCredentialRepository repository
+    IPrincipalPasskeyCredentialRepository repository
 ) : IRequestHandler<GetPasskeyCredentialByCredentialIdQuery, PrincipalPasskeyCredential?>
 {
     public Task<PrincipalPasskeyCredential?> Handle(
