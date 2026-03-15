@@ -88,8 +88,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(_ =>
     CerbosClientBuilder.ForTarget(cerbosTarget).WithPlaintext().Build()
 );
-builder.Services.AddScoped<IAuth>(sp =>
-    AuthMiddleware.GetAuth(
+builder.Services.AddScoped(sp =>
+    AuthContext.GetAuth(
         sp.GetRequiredService<IHttpContextAccessor>().HttpContext
             ?? throw new InvalidOperationException("No HttpContext available")
     )
@@ -137,6 +137,8 @@ if (app.Environment.IsDevelopment())
         "/api/scalar",
         options =>
         {
+            options.Title = "Banking";
+            options.Theme = ScalarTheme.Saturn;
             options.OpenApiRoutePattern = "/api/openapi/{documentName}.json";
         }
     );

@@ -6,14 +6,14 @@ namespace Banking.Api.Identity;
 
 internal interface IAuth
 {
-    public ResolvedPrincipal Principal { get; init; }
+    public Principal Principal { get; init; }
 
     public Task<bool> IsAllowed(string resource, string id, string action);
 }
 
-internal class Auth(ResolvedPrincipal principal, ICerbosClient cerbos) : IAuth
+internal class Auth(Principal principal, ICerbosClient cerbos) : IAuth
 {
-    public ResolvedPrincipal Principal { get; init; } = principal;
+    public Principal Principal { get; init; } = principal;
 
     public async Task<bool> IsAllowed(string resource, string id, string action)
     {

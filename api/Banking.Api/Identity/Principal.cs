@@ -1,6 +1,6 @@
 namespace Banking.Api.Identity;
 
-public record ResolvedPrincipal(
+public record Principal(
     Guid Id,
     List<PrincipalIdentity> Identities,
     List<string> Roles,

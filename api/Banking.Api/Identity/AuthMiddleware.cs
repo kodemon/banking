@@ -1,151 +1,80 @@
+using Banking.Principals.Commands;
 using Banking.Principals.Queries;
 using Cerbos.Sdk;
 using MediatR;
 
 namespace Banking.Api.Identity;
 
-/*
- |--------------------------------------------------------------------------------
- | Auth Middleware
- |--------------------------------------------------------------------------------
- |
- | Runs on every request before ASP.NET's own authentication pipeline.
- |
- | The browser holds the session ID in a single HttpOnly cookie ("session").
- | On every request this middleware:
- |
- |   1. Reads the cookie and parses the session ID.
- |   2. Looks up the session in the principals database via MediatR.
- |   3. Resolves the application Principal and stores IAuth in context.Items
- |      so downstream controllers can call IAuth.IsAllowed() without
- |      repeating the lookup.
- |
- */
-
 internal class AuthMiddleware(RequestDelegate next, ILogger<AuthMiddleware> logger)
 {
-    internal const string SessionCookieName = "session";
-    private const string AuthKey = "IAuth";
-
     public async Task InvokeAsync(HttpContext context, IMediator mediator, ICerbosClient cerbos)
     {
-        logger.LogInformation(
-            "[Auth] ← {Method} {Path}",
-            context.Request.Method,
-            context.Request.Path
-        );
-
-        var sessionId = GetSessionId(context.Request);
-
-        if (sessionId.HasValue)
+        var principal = await GetSessionPrincipal(context, mediator);
+        if (principal is not null)
         {
-            var session = await mediator.Send(
-                new GetSessionByIdQuery(sessionId.Value),
-                context.RequestAborted
-            );
-
-            if (session is null || session.IsExpired)
-            {
-                logger.LogWarning(
-                    "[Auth] Session invalid or expired — clearing cookie, sessionId={SessionId}",
-                    sessionId
-                );
-                ClearSessionCookie(context);
-            }
-            else
-            {
-                var principal = await mediator.Send(
-                    new GetPrincipalByIdQuery(session.PrincipalId),
-                    context.RequestAborted
-                );
-
-                if (principal is null)
-                {
-                    logger.LogWarning(
-                        "[Auth] Session valid but principal not found — principalId={PrincipalId}",
-                        session.PrincipalId
-                    );
-                    ClearSessionCookie(context);
-                }
-                else
-                {
-                    context.Items[AuthKey] = new Auth(
-                        new ResolvedPrincipal(
-                            principal.Id,
-                            principal
-                                .Identities.Select(i => new PrincipalIdentity(
-                                    i.Provider,
-                                    i.ExternalId
-                                ))
-                                .ToList(),
-                            principal.Roles.Select(r => r.Role).ToList(),
-                            new PrincipalAttributes()
-                        ),
-                        cerbos
-                    );
-
-                    logger.LogInformation(
-                        "[Auth] Principal resolved — id={PrincipalId}",
-                        principal.Id
-                    );
-                }
-            }
-        }
-        else
-        {
-            logger.LogInformation("[Auth] No session cookie — request is unauthenticated");
+            logger.LogDebug("Principal resolved — id={PrincipalId}", principal.Id);
+            context.Items[AuthContext.AuthKey] = new Auth(principal, cerbos);
         }
 
         await next(context);
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    public static IAuth GetAuth(HttpContext context) =>
-        context.Items[AuthKey] as IAuth
-        ?? throw new InvalidOperationException(
-            "IAuth has not been resolved for this request. Ensure AuthMiddleware is registered."
-        );
-
-    public static Guid? GetSessionId(HttpRequest request)
+    private async Task<Principal?> GetSessionPrincipal(HttpContext context, IMediator mediator)
     {
-        var raw = request.Cookies[SessionCookieName];
-        if (string.IsNullOrWhiteSpace(raw))
+        if (!AuthCookies.TryGetSessionId(context.Request, out var sessionId))
         {
+            logger.LogInformation("No session cookie — request is unauthenticated");
             return null;
         }
 
-        if (Guid.TryParse(raw, out var sessionId))
+        var session = await mediator.Send(
+            new GetSessionByIdQuery(sessionId),
+            context.RequestAborted
+        );
+
+        if (session is null)
         {
-            return sessionId;
+            logger.LogWarning(
+                "Session invalid — clearing cookie, sessionId={SessionId}",
+                sessionId
+            );
+            AuthCookies.ClearSessionCookie(context);
+            return null;
         }
 
-        return null;
+        if (session.IsExpired)
+        {
+            logger.LogWarning(
+                "Session expired — clearing cookie, sessionId={SessionId}",
+                sessionId
+            );
+            await mediator.Send(new DeleteSessionCommand(sessionId), context.RequestAborted);
+            AuthCookies.ClearSessionCookie(context);
+            return null;
+        }
+
+        var principal = await mediator.Send(
+            new GetPrincipalByIdQuery(session.PrincipalId),
+            context.RequestAborted
+        );
+
+        if (principal is null)
+        {
+            logger.LogWarning(
+                "Principal not found — principalId={PrincipalId}",
+                session.PrincipalId
+            );
+            AuthCookies.ClearSessionCookie(context);
+            return null;
+        }
+
+        return new Principal(
+            principal.Id,
+            principal
+                .Identities.Select(i => new PrincipalIdentity(i.Provider, i.ExternalId))
+                .ToList(),
+            principal.Roles.Select(r => r.Role).ToList(),
+            new PrincipalAttributes()
+        );
     }
-
-    public static void SetSessionCookie(HttpResponse response, Guid sessionId) =>
-        response.Cookies.Append(
-            SessionCookieName,
-            sessionId.ToString(),
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                MaxAge = TimeSpan.FromDays(30),
-            }
-        );
-
-    public static void ClearSessionCookie(HttpContext context) =>
-        context.Response.Cookies.Delete(
-            SessionCookieName,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-            }
-        );
 }

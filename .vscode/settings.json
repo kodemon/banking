@@ -1,26 +1,36 @@
 {
-    "biome.enabled": true,
-    "editor.formatOnSave": true,
-    "[csharp]": {
-      "editor.codeLens": false,
-      "editor.defaultFormatter": "csharpier.csharpier-vscode"
-    },
-    "[xml]": {
-      "editor.codeLens": false,
-      "editor.defaultFormatter": "csharpier.csharpier-vscode"
-    },
-    "[typescript]": {
-      "editor.defaultFormatter": "biomejs.biome",
-      "editor.codeActionsOnSave": {
-        "source.organizeImports.biome": "explicit",
-        "source.fixAll.biome": "explicit"
-      }
-    },
-    "[typescriptreact]": {
-      "editor.defaultFormatter": "biomejs.biome",
-      "editor.codeActionsOnSave": {
-        "source.organizeImports.biome": "explicit",
-        "source.fixAll.biome": "explicit"
-      }
+  "editor.formatOnSave": true,
+
+  "biome.enabled": true,
+  "biome.configurationPath": "app/biome.json",
+  "biome.lsp.bin": "app/node_modules/.bin/biome",
+
+  "[csharp]": {
+    "editor.codeLens": false,
+    "editor.defaultFormatter": "csharpier.csharpier-vscode"
+  },
+  "[xml]": {
+    "editor.codeLens": false,
+    "editor.defaultFormatter": "csharpier.csharpier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.biome": "explicit",
+      "source.fixAll.biome": "explicit"
     }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.biome": "explicit",
+      "source.fixAll.biome": "explicit"
+    }
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
 }

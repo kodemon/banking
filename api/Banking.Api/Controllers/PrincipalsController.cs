@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 internal class PrincipalsController(IAuth auth, IMediator mediator) : ControllerBase
 {
     [HttpGet("me")]
-    [ProducesResponseType<ResolvedPrincipal>(200)]
+    [ProducesResponseType<Principal>(200)]
     [ProducesResponseType(404)]
     public async Task<ActionResult> Me()
     {
