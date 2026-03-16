@@ -4,6 +4,7 @@ set -e
 declare -A PROJECTS=(
     ["accounts"]="api/Banking.Accounts"
     ["atomic"]="api/Banking.Atomic"
+    ["ocsf"]="api/Banking.OCSF"
     ["principals"]="api/Banking.Principals"
     ["transactions"]="api/Banking.Transactions"
     ["users"]="api/Banking.Users"

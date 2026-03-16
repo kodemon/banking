@@ -1,6 +1,9 @@
 using System.Buffers.Text;
 using System.Text.Json;
 using Banking.Api.Identity;
+using Banking.OCSF.Authentication;
+using Banking.OCSF.Events;
+using Banking.OCSF.Interfaces;
 using Banking.Principals.Commands;
 using Banking.Principals.Queries;
 using Fido2NetLib;
@@ -16,6 +19,7 @@ internal class PasskeyController(
     IFido2 fido2,
     IMemoryCache cache,
     IMediator mediator,
+    IOcsfAuditLogger auditLogger,
     ILogger<AuthController> logger
 ) : ControllerBase
 {
@@ -27,20 +31,16 @@ internal class PasskeyController(
     public IActionResult PasskeyRegistrationBegin([FromBody] PasskeyRegistrationBeginRequest body)
     {
         var userId = Guid.NewGuid();
-        var email = body.Email;
-        var displayName = "Banking";
-
-        var user = new Fido2User
-        {
-            Id = userId.ToByteArray(),
-            Name = email,
-            DisplayName = displayName,
-        };
 
         var options = fido2.RequestNewCredential(
             new RequestNewCredentialParams
             {
-                User = user,
+                User = new Fido2User
+                {
+                    Id = userId.ToByteArray(),
+                    Name = body.Email,
+                    DisplayName = "Banking",
+                },
                 ExcludeCredentials = [],
                 AuthenticatorSelection = new AuthenticatorSelection
                 {
@@ -115,6 +115,16 @@ internal class PasskeyController(
                 "[Auth:PasskeyRegistrationVerify] Fido2 verification failed: {Message}",
                 ex.Message
             );
+
+            await auditLogger.LogAuthenticationAsync(
+                PasskeyAuditEvents.CredentialVerificationFailed(
+                    body.UserId,
+                    ex.Message,
+                    Endpoint()
+                ),
+                ct
+            );
+
             return BadRequest("Passkey verification failed. Please try again.");
         }
 
@@ -138,6 +148,16 @@ internal class PasskeyController(
         );
 
         var session = await mediator.Send(new CreateSessionCommand(principal.Id), ct);
+
+        await auditLogger.LogAuthenticationAsync(
+            PasskeyAuditEvents.RegistrationSucceeded(
+                principal.Id,
+                credentialIdBase64,
+                session,
+                Endpoint()
+            ),
+            ct
+        );
 
         AuthCookies.SetSessionCookie(Response, session.Id);
 
@@ -200,6 +220,11 @@ internal class PasskeyController(
 
         if (storedCredential is null)
         {
+            await auditLogger.LogAuthenticationAsync(
+                PasskeyAuditEvents.CredentialNotFound(credentialIdBase64, Endpoint()),
+                ct
+            );
+
             return Unauthorized("Passkey not recognised.");
         }
 
@@ -228,6 +253,17 @@ internal class PasskeyController(
                 "[Auth:PasskeyLoginVerify] Fido2 assertion failed: {Message}",
                 ex.Message
             );
+
+            await auditLogger.LogAuthenticationAsync(
+                PasskeyAuditEvents.AssertionVerificationFailed(
+                    storedCredential.PrincipalId,
+                    credentialIdBase64,
+                    ex.Message,
+                    Endpoint()
+                ),
+                ct
+            );
+
             return Unauthorized("Passkey verification failed.");
         }
 
@@ -241,10 +277,33 @@ internal class PasskeyController(
             ct
         );
 
+        await auditLogger.LogAuthenticationAsync(
+            PasskeyAuditEvents.LoginSucceeded(
+                storedCredential.PrincipalId,
+                credentialIdBase64,
+                session,
+                Endpoint()
+            ),
+            ct
+        );
+
         AuthCookies.SetSessionCookie(Response, session.Id);
 
         return Ok();
     }
+
+    /*
+     |--------------------------------------------------------------------------
+     | Helpers
+     |--------------------------------------------------------------------------
+     */
+
+    private OcsfNetworkEndpoint Endpoint() =>
+        new()
+        {
+            IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+            UserAgent = HttpContext.Request.Headers.UserAgent.ToString(),
+        };
 }
 
 public record PasskeyRegistrationBeginRequest(string Email);

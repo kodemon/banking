@@ -4,6 +4,7 @@ using Banking.Api;
 using Banking.Api.Exceptions;
 using Banking.Api.Identity;
 using Banking.Atomic;
+using Banking.OCSF;
 using Banking.Principals;
 using Banking.Transactions;
 using Banking.Users;
@@ -14,6 +15,12 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+/*
+ |--------------------------------------------------------------------------------
+ | Configuration
+ |--------------------------------------------------------------------------------
+ */
+
 var connString = builder.Configuration.GetConnectionString("Postgres");
 if (string.IsNullOrWhiteSpace(connString))
 {
@@ -22,6 +29,13 @@ if (string.IsNullOrWhiteSpace(connString))
 
 var cerbosTarget =
     builder.Configuration["Cerbos:Target"] ?? throw new Exception("Cerbos target not configured");
+var rabbitHost =
+    builder.Configuration["RabbitMq:Host"] ?? throw new Exception("RabbitMq:Host not configured");
+var rabbitUser =
+    builder.Configuration["RabbitMq:User"] ?? throw new Exception("RabbitMq:User not configured");
+var rabbitPassword =
+    builder.Configuration["RabbitMq:Password"]
+    ?? throw new Exception("RabbitMq:Password not configured");
 
 /*
  |--------------------------------------------------------------------------------
@@ -66,6 +80,7 @@ builder.Services.AddSingleton<IFido2>(_ => new Fido2(
 ));
 
 builder.Services.AddAtomicService(connString);
+builder.Services.AddOcsfModule(connString, rabbitHost, rabbitUser, rabbitPassword);
 builder.Services.AddAccountsModule(connString);
 builder.Services.AddPrincipalsModule(connString);
 builder.Services.AddTransactionsModule(connString);

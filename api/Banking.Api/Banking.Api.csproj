@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Banking.Accounts\Banking.Accounts.csproj" />
     <ProjectReference Include="..\Banking.Atomic\Banking.Atomic.csproj" />
+    <ProjectReference Include="..\Banking.OCSF\Banking.OCSF.csproj" />
     <ProjectReference Include="..\Banking.Principals\Banking.Principals.csproj" />
     <ProjectReference Include="..\Banking.Shared\Banking.Shared.csproj" />
     <ProjectReference Include="..\Banking.Transactions\Banking.Transactions.csproj" />

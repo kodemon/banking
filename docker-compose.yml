@@ -3,6 +3,8 @@ volumes:
     driver: local
   caddy-data:
     driver: local
+  rabbitmq-data:
+    driver: local
 
 services:
 
@@ -49,3 +51,19 @@ services:
     volumes:
       - ./cerbos.yaml:/config.yaml
       - ./policies:/policies
+
+  # ---------------------------------------------------------------------------
+  # Message broker
+  # ---------------------------------------------------------------------------
+ 
+  rabbitmq:
+    image: rabbitmq:4-management
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
