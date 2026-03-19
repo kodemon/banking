@@ -65,7 +65,7 @@ export const Route = createFileRoute("/register")({
     if (session.isRegistered === true) {
       throw redirect({ to: "/" });
     }
-    if (session.isAuthenticated === false) {
+    if (session.isAuthenticated === true) {
       throw redirect({ to: "/register/profile" });
     }
   },

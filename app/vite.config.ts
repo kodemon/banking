@@ -22,6 +22,6 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    allowedHosts: ["local.banking.com"],
+    allowedHosts: ["banking.local"],
   },
 });

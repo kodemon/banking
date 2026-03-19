@@ -1,4 +1,4 @@
-local.banking.com {
+banking.local {
 	tls internal
 
 	handle /api/* {

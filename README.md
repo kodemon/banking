@@ -1,45 +1,123 @@
 # Banking
 
-## Format
+## Prerequisites
 
-From the `/api` folder run:
+Ensure the following are installed before proceeding:
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Node.js LTS](https://nodejs.org/) (for the Vite + React frontend)
+- [Docker](https://docs.docker.com/get-docker/)
+
+---
+
+## Getting Started
+
+### 1. Start Services
+
+Spin up all required services via Docker Compose:
 
 ```sh
-dotnet csharpier format .
+docker compose up -d
 ```
 
-## Clean
+### 2. Configure Local HTTPS
 
-Clean out all the generated .NET folders
+Secure authentication requires local HTTPS support. Follow these steps:
+
+**Add a local host entry:**
 
 ```sh
-rm -rf  **/*/bin/ **/*/obj/ **/*/bin\\Debug/
+sudo nano /etc/hosts
 ```
 
-## Migrations
+Append the following line:
 
-### Create Migration
+```
+127.0.0.1 banking.local
+```
 
-To generate migrations for each domain run:
+**Extract the local CA certificate from the Caddy container:**
+
+```sh
+docker compose exec caddy cat /data/caddy/pki/authorities/local/root.crt | tee banking.local.crt > /dev/null
+```
+
+**Trust the certificate in Firefox:**
+
+1. Open **Settings → Privacy & Security → View Certificates → Authorities → Import**
+2. Select the extracted certificate file: `/path/to/project/banking.local.crt`
+3. Check **Trust this CA to identify websites** and confirm
+
+---
+
+## Development
+
+### API
+
+Start the API server:
+
+```sh
+dotnet run --project api/Banking.Api
+```
+
+### App
+
+From the `app` directory, generate the typed API client:
+
+```sh
+npm run build:api
+```
+
+This produces `app/src/openapi.gen.ts`, used by [openapi-typescript](https://github.com/openapi-ts/openapi-typescript) and [openapi-fetch](https://github.com/openapi-ts/openapi-typescript/tree/main/packages/openapi-fetch) to provide a type-safe client–server interface.
+
+Then start the development server:
+
+```sh
+npm run dev
+```
+
+---
+
+## Database Migrations
+
+### Create a Migration
+
+Generate a migration for a specific domain:
 
 ```sh
 ./scripts/migration/create.sh $DOMAIN $MIGRATION_NAME
 ```
 
-Example: `./scripts/migration/create.sh accounts init`
+**Example:**
 
-### Apply Migration
+```sh
+./scripts/migration/create.sh accounts init
+```
 
-Once migration updates has been generated run:
+### Apply Migrations
+
+With the Docker environment running, apply all pending migrations:
 
 ```sh
 ./scripts/migration/update.sh
 ```
 
-## Run
+---
 
-To start the API run:
+## Utilities
+
+### Format
+
+Run the code formatter from the `/api` directory:
 
 ```sh
-dotnet run --project api/Banking.Api
+dotnet csharpier format .
+```
+
+### Clean
+
+Remove all generated build artifacts:
+
+```sh
+rm -rf **/*/bin/ **/*/obj/ **/*/bin\\Debug/
 ```

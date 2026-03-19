@@ -428,6 +428,7 @@ FodyWeavers.xsd
 *.msp
 
 # Generated
+/banking-localhost.crt
 /Banking.Api.json
 /app/src/openapi.gen.ts
 /keys/**
@@ -439,7 +440,3 @@ FodyWeavers.xsd
 **/api/**/obj/
 **/api/**/bin\\Debug/
 **/api/**/*.db
-
-# Zitadel
-zitadel-login-client.pat
-!zitadel.env
