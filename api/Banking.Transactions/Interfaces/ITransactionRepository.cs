@@ -1,4 +1,4 @@
-using Banking.Transactions.Repositories.Resources;
+using Banking.Transactions.Database.Models;
 
 namespace Banking.Transactions.Interfaces;
 

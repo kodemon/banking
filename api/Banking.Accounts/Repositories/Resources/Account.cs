@@ -93,6 +93,11 @@ internal class Account
         return this;
     }
 
+    public IEnumerable<Guid> GetAccountHolderIds()
+    {
+        return AccountHolders.Select((ah) => ah.HolderId);
+    }
+
     public Account RemoveHolder(Guid holderId)
     {
         var holder = AccountHolders.FirstOrDefault(h => h.Id == holderId);

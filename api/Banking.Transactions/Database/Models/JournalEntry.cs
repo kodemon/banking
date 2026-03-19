@@ -1,6 +1,6 @@
 using Banking.Transactions.Enums;
 
-namespace Banking.Transactions.Repositories.Resources;
+namespace Banking.Transactions.Database.Models;
 
 internal class JournalEntry
 {

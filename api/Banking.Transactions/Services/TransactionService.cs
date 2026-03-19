@@ -1,7 +1,7 @@
 using Banking.Shared.Exceptions;
 using Banking.Shared.ValueObjects;
+using Banking.Transactions.Database.Models;
 using Banking.Transactions.Interfaces;
-using Banking.Transactions.Repositories.Resources;
 
 namespace Banking.Transactions;
 

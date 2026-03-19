@@ -1,4 +1,4 @@
-using Banking.Transactions.Repositories.Resources;
+using Banking.Transactions.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Transactions.Database;

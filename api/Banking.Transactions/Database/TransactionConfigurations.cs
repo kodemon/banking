@@ -1,5 +1,5 @@
 using Banking.Shared.ValueObjects;
-using Banking.Transactions.Repositories.Resources;
+using Banking.Transactions.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

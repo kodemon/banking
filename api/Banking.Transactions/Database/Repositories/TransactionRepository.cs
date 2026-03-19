@@ -1,9 +1,8 @@
-using Banking.Transactions.Database;
+using Banking.Transactions.Database.Models;
 using Banking.Transactions.Interfaces;
-using Banking.Transactions.Repositories.Resources;
 using Microsoft.EntityFrameworkCore;
 
-namespace Banking.Transactions;
+namespace Banking.Transactions.Database.Repositories;
 
 internal class TransactionRepository(TransactionsDbContext context) : ITransactionRepository
 {

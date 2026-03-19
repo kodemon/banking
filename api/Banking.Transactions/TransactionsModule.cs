@@ -1,4 +1,5 @@
 using Banking.Transactions.Database;
+using Banking.Transactions.Database.Repositories;
 using Banking.Transactions.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
